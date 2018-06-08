@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.VIdeoPlayer">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/layoutVideoPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:id="@+id/layoutvidVideo"
+                android:visibility="visible"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <VideoView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:keepScreenOn="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
+                    android:id="@+id/videoView" />
+                <ProgressBar
+                    android:id="@+id/progVidVideo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:indeterminateDrawable="@drawable/animation"/>
+                <LinearLayout
+                    android:id="@+id/layoutVideoControllerTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:padding="6dp"
+                    android:gravity="center"
+                    android:background="#bb222222">
+                    <TextView
+                        android:id="@+id/txtControlVideoName"
+                        android:layout_width="match_parent"
+                        android:layout_height="36dp"
+                        android:textSize="20sp"
+                        android:paddingLeft="6dp"
+                        android:gravity="center_vertical"
+                        android:textColor="#FFF"
+                        android:textStyle="bold"
+                        android:text="Big Buck Bunny"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/layoutVideoController"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:background="#bb222222"
+                    android:layout_alignParentBottom="true"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/imgControlPrevious"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_previous"/>
+                    <ImageView
+                        android:id="@+id/imgControlPlay"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_pause"/>
+                    <ImageView
+                        android:id="@+id/imgControlNext"
+                        android:layout_gravity="center"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_next"/>
+                    <TextView
+                        android:id="@+id/txtControlCurrent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="#FFF"
+                        android:padding="2dp"
+                        android:gravity="center"
+                        android:text="00:00" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarControl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/txtControlEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:padding="4dp"
+                        android:textColor="#FFF"
+                        android:text="00:00" />
+
+                    <ImageView
+                        android:id="@+id/imgControlFullScreen"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_fullscreen"/>
+
+                </LinearLayout>
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>
