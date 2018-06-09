@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/btbMenuHome"
+        android:title="Home"
+        android:icon="@drawable/ic_nav_home"/>
+
+    <item
+        android:id="@+id/btbMenuProfile"
+        android:title="Profile"
+        android:icon="@drawable/ic_nav_profile"/>
+
+    <item
+        android:id="@+id/btbMenuCategory"
+        android:title="Category"
+        android:icon="@drawable/ic_nav_category"/>
+
+    <item
+        android:id="@+id/btbMenuVideo"
+        android:title="Video"
+        android:icon="@drawable/ic_nav_video"/>
+
+    <item
+        android:id="@+id/btbMenuAudio"
+        android:title="Audio"
+        android:icon="@drawable/ic_nav_audio"/>
+
+    <item
+        android:id="@+id/btbMenuExit"
+        android:title="Exit"
+        android:icon="@drawable/ic_nav_exit"/>
+
+
+</menu>

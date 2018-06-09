@@ -8,14 +8,15 @@ import android.preference.PreferenceManager;
  * Created by Android on 1/16/2017.
  */
 public class SharedPrefDatabase {
-    public static final String PREFS_KEY_ALBUM = "AOP_PREFS_ALBUM";
-    public static final String PREFS_KEY_CONTENT_NAME = "AOP_PREFS_CONTENT_NAME";
-    public static final String PREFS_KEY_CONTENT_DETAIL_VALUE = "AOP_PREFS_CONTENT_DETAIL_VALUE";
-    public static final String PREFS_KEY_VIDEO_LINK = "AOP_PREFS_VIDEO_LINK";
+    public static final String KEY_ID = "KEY_ID";
+    public static final String KEY_FULL_NAME = "KEY_FULL_NAME";
+    public static final String KEY_EMAIL = "KEY_EMAIL";
+    public static final String KEY_MOBILE = "KEY_MOBILE";
+    public static final String KEY_PASS = "KEY_PASS";
+    public static final String KEY_AGE = "KEY_AGE";
+    public static final String KEY_PHOTO = "KEY_PHOTO";
+    public static final String KEY_ADDRESS = "KEY_ADDRESS";
 
-    public static final String PREFS_KEY_CURRENT_LIST = "AOP_PREFS_CURRENT_LIST";
-    public static final String PREFS_KEY_CURRENT_LIST_POS = "AOP_PREFS_CURRENT_LIST_POS";
-    public static final String PREFS_KEY_TYPE = "AOP_PREFS_TYPE";
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -26,69 +27,75 @@ public class SharedPrefDatabase {
         editor = sharedPreferences.edit();
     }
 
-    public void StoreAlbum(String data){
-        editor.putString(PREFS_KEY_ALBUM, data);
+    public void StoreID(String data){
+        editor.putString(KEY_ID, data);
         editor.commit();
     }
-    public String RetriveAlbum(){
-        String text = sharedPreferences.getString(PREFS_KEY_ALBUM, null);
+    public String RetriveID(){
+        String text = sharedPreferences.getString(KEY_ID, null);
         return text;
     }
 
-    public void StoreContentName(String data){
-        editor.putString(PREFS_KEY_CONTENT_NAME, data);
+    public void StoreName(String data){
+        editor.putString(KEY_FULL_NAME, data);
         editor.commit();
     }
-    public String RetriveContentName(){
-        String text = sharedPreferences.getString(PREFS_KEY_CONTENT_NAME, null);
+    public String RetriveName(){
+        String text = sharedPreferences.getString(KEY_FULL_NAME, null);
         return text;
     }
 
-
-    public void StoreContentDetailValue(String data){
-        editor.putString(PREFS_KEY_CONTENT_DETAIL_VALUE, data);
+    public void StoreEmail(String data){
+        editor.putString(KEY_EMAIL, data);
         editor.commit();
     }
-    public String RetriveContentDetailValue(){
-        String text = sharedPreferences.getString(PREFS_KEY_CONTENT_DETAIL_VALUE, null);
+    public String RetriveEmail(){
+        String text = sharedPreferences.getString(KEY_EMAIL, null);
         return text;
     }
 
-
-    //Video Link
-    public void StoreVideoLink(String data){
-        editor.putString(PREFS_KEY_VIDEO_LINK, data);
+    public void StoreMobile(String data){
+        editor.putString(KEY_MOBILE, data);
         editor.commit();
     }
-    public String RetriveVideoLink(){
-        String text = sharedPreferences.getString(PREFS_KEY_VIDEO_LINK, null);
+    public String RetriveMobile(){
+        String text = sharedPreferences.getString(KEY_MOBILE, null);
         return text;
     }
 
-    public void StoreCurrentList(String data){
-        editor.putString(PREFS_KEY_CURRENT_LIST, data);
+    public void StorePass(String data){
+        editor.putString(KEY_PASS, data);
         editor.commit();
     }
-    public String RetriveCurrentList(){
-        String text = sharedPreferences.getString(PREFS_KEY_CURRENT_LIST, null);
+    public String RetrivePass(){
+        String text = sharedPreferences.getString(KEY_PASS, null);
         return text;
     }
 
-    public void StoreCurrentListPos(int data){
-        editor.putInt(PREFS_KEY_CURRENT_LIST_POS, data);
+    public void StoreAge(String data){
+        editor.putString(KEY_AGE, data);
         editor.commit();
     }
-    public int RetriveCurrentListPos(){
-        int text = sharedPreferences.getInt(PREFS_KEY_CURRENT_LIST_POS, 0);
+    public String RetriveAge(){
+        String text = sharedPreferences.getString(KEY_AGE, null);
         return text;
     }
 
-    public void StoreType(String data){
-        editor.putString(PREFS_KEY_TYPE, data);
+    public void StorePhoto(String data){
+        editor.putString(KEY_PHOTO, data);
         editor.commit();
     }
-    public String RetriveType(){
-        String text = sharedPreferences.getString(PREFS_KEY_TYPE, null);
+    public String RetrivePhoto(){
+        String text = sharedPreferences.getString(KEY_PHOTO, null);
+        return text;
+    }
+
+    public void StoreAddress(String data){
+        editor.putString(KEY_ADDRESS, data);
+        editor.commit();
+    }
+    public String RetriveAddress(){
+        String text = sharedPreferences.getString(KEY_ADDRESS, null);
         return text;
     }
 }
