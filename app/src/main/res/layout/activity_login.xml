@@ -68,6 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tarms &amp; Conditions"
+            android:textSize="10sp"
             android:textColor="@android:color/white"/>
 
         <TextView
@@ -80,6 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Privacy Policy"
+            android:textSize="10sp"
             android:textColor="@android:color/white"/>
 
     </LinearLayout>

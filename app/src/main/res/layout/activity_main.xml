@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/drawerLayout"
+    android:background="#DDD"
     tools:context=".Activity.MainActivity">
 
     <RelativeLayout
@@ -36,20 +37,87 @@
             android:layout_below="@id/toolbar"
             android:animateLayoutChanges="true">
 
-            <RelativeLayout
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center">
+                android:layout_height="match_parent">
 
-
-                <TextView
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="HELLO SAIM"
-                    android:gravity="center"/>
+                    android:layout_height="match_parent">
 
-            </RelativeLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
+                        <ss.com.bannerslider.views.BannerSlider
+                            android:id="@+id/bannerSlider"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            app:interval="3000"
+                            app:loopSlides="true"
+                            app:defaultIndicators="round_square"
+                            app:defaultBanner="1"
+                            app:animateIndicators="true"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="8dp"
+                            android:background="#3f3f3f">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="ALL BOOK LIST"
+                                android:textStyle="bold"
+                                android:textColor="@android:color/holo_orange_light"
+                                android:gravity="center_vertical"
+                                android:drawableRight="@drawable/ic_see_all"
+                                android:drawableTint="@android:color/holo_orange_light"/>
+
+                        </LinearLayout>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recyclerViewAllBook"
+                            android:layout_width="match_parent"
+                            android:layout_height="132dp">
+
+                        </android.support.v7.widget.RecyclerView>
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="8dp"
+                            android:background="#3f3f3f">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="LATEST CONTENT"
+                                android:textStyle="bold"
+                                android:textColor="@android:color/holo_orange_light"
+                                android:gravity="center_vertical"
+                                android:drawableRight="@drawable/ic_see_all"
+                                android:drawableTint="@android:color/holo_orange_light"/>
+
+                        </LinearLayout>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recyclerViewContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="132dp">
+
+                        </android.support.v7.widget.RecyclerView>
+
+
+                    </LinearLayout>
+                </RelativeLayout>
+
+            </ScrollView>
         </FrameLayout>
 
     </RelativeLayout>
@@ -62,12 +130,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:layout_marginTop="?attr/actionBarSize"
-        app:itemTextColor="#FFF"
-        app:itemTextAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:background="#006A4E"
-        app:itemIconTint="#FFFFFF"
+        app:itemTextAppearance="@style/TextAppearance.AppCompat.Small"
         app:menu="@menu/navigation_menu"
-        app:headerLayout="@drawable/ic_nav_exit">
+        app:headerLayout="@layout/drawer_header">
 
     </android.support.design.widget.NavigationView>
 

@@ -9,5 +9,6 @@ public class MainApiLink {
     public static String link_head = "http://demo.resourcespoints.com/BOOKAPP_API/";
 
     public static String login = link_head + "login" + ".php";
+    public static String getCategory = link_head + "getCategory" + ".php";
 
 }

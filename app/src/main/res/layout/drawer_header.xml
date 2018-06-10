@@ -6,7 +6,7 @@
     android:layout_height="140dp"
     android:gravity="center_vertical"
     android:paddingLeft="26dp"
-    android:background="@drawable/ic_background">
+    android:background="@drawable/ic_header">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image"
@@ -14,7 +14,18 @@
         android:layout_height="66dp"
         android:src="@drawable/ic_logo"
         app:civ_border_width="2dp"
-        app:civ_border_color="#FF000000"/>
+        app:civ_border_color="#FFFFFF"/>
+
+
+    <TextView
+        android:id="@+id/txtProfileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Md. Mobinur Rahman"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:layout_below="@id/profile_image"
+        android:layout_marginTop="8dp"/>
 
 
 </RelativeLayout>
