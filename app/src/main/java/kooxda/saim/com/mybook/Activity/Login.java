@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -67,6 +68,13 @@ public class Login extends AppCompatActivity {
 
             }
         });
+
+        Log.d("SAIM SAIM SAIM", new SharedPrefDatabase(getApplicationContext()).RetriveMobile() + "\n" + new SharedPrefDatabase(getApplicationContext()).RetrivePass());
+
+        if (TextUtils.isEmpty(new SharedPrefDatabase(getApplicationContext()).RetriveMobile()) != true && TextUtils.isEmpty(new SharedPrefDatabase(getApplicationContext()).RetrivePass()) != true ) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        }
     }
 
     private void RequestForLogin(final String email, final String pass ) {

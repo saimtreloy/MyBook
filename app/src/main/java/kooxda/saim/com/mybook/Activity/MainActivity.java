@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,9 @@ import java.util.List;
 import java.util.Map;
 
 import kooxda.saim.com.mybook.Adapter.AdapterBook;
+import kooxda.saim.com.mybook.Adapter.AdapterContentVideo;
 import kooxda.saim.com.mybook.Model.ModelBook;
+import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
 import kooxda.saim.com.mybook.Utility.MainApiLink;
 import kooxda.saim.com.mybook.Utility.MySingleton;
@@ -62,6 +65,20 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManagerAllBook;
     RecyclerView.Adapter allBookAdapter;
 
+    //recyclerViewContentVideo
+    ArrayList<ModelContent> modelContentsVideo = new ArrayList<>();
+    RecyclerView recyclerViewContentAudio;
+    RecyclerView.LayoutManager layoutManagerAudio;
+    RecyclerView.Adapter audioAdapter;
+
+
+    ArrayList<ModelContent> modelContentsAudio = new ArrayList<>();
+    RecyclerView recyclerViewContentVideo;
+    RecyclerView.LayoutManager layoutManagerVideo;
+    RecyclerView.Adapter videoAdapter;
+
+    TextView txtAllBookList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle = new android.support.v7.app.ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawerView) {
-                Log.d("SAIM DRAWER", "Nav drawer opend");
                 super.onDrawerOpened(drawerView);
             }
         };
@@ -109,16 +125,30 @@ public class MainActivity extends AppCompatActivity {
 
 
         recyclerViewAllBook = (RecyclerView) findViewById(R.id.recyclerViewAllBook);
-        recyclerViewAllBook.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        recyclerViewAllBook.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerViewAllBook.setHasFixedSize(true);
 
+        recyclerViewContentVideo = (RecyclerView) findViewById(R.id.recyclerViewContentVideo);
+        recyclerViewContentVideo.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewContentVideo.setHasFixedSize(true);
+
+        recyclerViewContentAudio = (RecyclerView) findViewById(R.id.recyclerViewContentAudio);
+        recyclerViewContentAudio.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewContentAudio.setHasFixedSize(true);
+
+
+        txtAllBookList = (TextView) findViewById(R.id.txtAllBookList);
+        txtAllBookList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), AllCategory.class));
+            }
+        });
+
+
         NavigationItemClicked();
-
         startSlider();
-
-
         LoadCategory();
-
     }
 
 
@@ -165,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void LoadCategory() {
+        progressDialog.show();
         modelBooks.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getCategory,
                 new Response.Listener<String>() {
@@ -195,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
                                 allBookAdapter = new AdapterBook(modelBooks);
                                 recyclerViewAllBook.setAdapter(allBookAdapter);
 
+                                LoadVideo();
 
                             } else {
                                 Toast.makeText(getApplicationContext(), "Something Wrong!!!", Toast.LENGTH_SHORT).show();
@@ -222,6 +254,136 @@ public class MainActivity extends AppCompatActivity {
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
 
+
+    private void LoadVideo() {
+        progressDialog.show();
+        modelContentsVideo.clear();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getMainVideo,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressDialog.dismiss();
+                        try {
+                            Log.d("API RESPONSE", response);
+
+                            JSONArray jsonArray = new JSONArray(response);
+                            JSONObject jsonObject = jsonArray.getJSONObject(0);
+                            String code = jsonObject.getString("code");
+
+                            if (code.equals("success")) {
+
+                                JSONArray jsonArrayUser = jsonObject.getJSONArray("user");
+                                for (int i=0; i<jsonArrayUser.length(); i++) {
+                                    JSONObject jsonObjectUser = jsonArrayUser.getJSONObject(i);
+
+                                    String id = jsonObjectUser.getString("id");
+                                    String name = jsonObjectUser.getString("name");
+                                    String banner = jsonObjectUser.getString("banner");
+                                    String location = jsonObjectUser.getString("location");
+                                    String type = jsonObjectUser.getString("type");
+                                    String category = jsonObjectUser.getString("category");
+                                    String date_time = jsonObjectUser.getString("date_time");
+
+                                    ModelContent modelContentVideo = new ModelContent(id, name, banner, location, type, category, date_time);
+                                    modelContentsVideo.add(modelContentVideo);
+                                }
+
+                                videoAdapter = new AdapterContentVideo(modelContentsVideo);
+                                recyclerViewContentVideo.setAdapter(videoAdapter);
+
+
+                                LoadAudio();
+
+
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Something Wrong!!!", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        }catch (Exception e){
+                            Log.d("HDHD ", e.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Request Error", error.toString());
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("user_fullname", new SharedPrefDatabase(getApplicationContext()).RetriveName());
+
+                return params;
+            }
+        };
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
+
+
+    private void LoadAudio() {
+        progressDialog.show();
+        modelContentsAudio.clear();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getMainAudio,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressDialog.dismiss();
+                        try {
+                            Log.d("API RESPONSE", response);
+
+                            JSONArray jsonArray = new JSONArray(response);
+                            JSONObject jsonObject = jsonArray.getJSONObject(0);
+                            String code = jsonObject.getString("code");
+
+                            if (code.equals("success")) {
+
+                                JSONArray jsonArrayUser = jsonObject.getJSONArray("user");
+                                for (int i=0; i<jsonArrayUser.length(); i++) {
+                                    JSONObject jsonObjectUser = jsonArrayUser.getJSONObject(i);
+
+                                    String id = jsonObjectUser.getString("id");
+                                    String name = jsonObjectUser.getString("name");
+                                    String banner = jsonObjectUser.getString("banner");
+                                    String location = jsonObjectUser.getString("location");
+                                    String type = jsonObjectUser.getString("type");
+                                    String category = jsonObjectUser.getString("category");
+                                    String date_time = jsonObjectUser.getString("date_time");
+
+                                    ModelContent modelContentAudio = new ModelContent(id, name, banner, location, type, category, date_time);
+                                    modelContentsAudio.add(modelContentAudio);
+                                }
+
+                                audioAdapter = new AdapterContentVideo(modelContentsAudio);
+                                recyclerViewContentAudio.setAdapter(audioAdapter);
+
+
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Something Wrong!!!", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        }catch (Exception e){
+                            Log.d("HDHD ", e.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Request Error", error.toString());
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("user_fullname", new SharedPrefDatabase(getApplicationContext()).RetriveName());
+
+                return params;
+            }
+        };
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+    }
 
 
 }

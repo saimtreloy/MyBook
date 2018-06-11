@@ -45,11 +45,16 @@ public class VIdeoPlayer extends AppCompatActivity {
     public boolean isFullscreen = false;
     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
+    public static String videoUrl = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_video_player);
+
+        videoUrl = getIntent().getExtras().getString("URL");
 
         Init();
     }
@@ -86,7 +91,8 @@ public class VIdeoPlayer extends AppCompatActivity {
 
 
     public void settingVideoView(){
-        Uri uri= Uri.parse("https://www.demonuts.com/Demonuts/smallvideo.mp4");
+        //https://www.demonuts.com/Demonuts/smallvideo.mp4
+        Uri uri= Uri.parse(videoUrl);
         videoView.setVideoURI(uri);
         videoView.requestFocus();
 

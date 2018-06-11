@@ -1,6 +1,7 @@
 package kooxda.saim.com.mybook.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import kooxda.saim.com.mybook.Activity.CategoryContent;
 import kooxda.saim.com.mybook.Model.ModelBook;
 import kooxda.saim.com.mybook.R;
 import kooxda.saim.com.mybook.Utility.SharedPrefDatabase;
@@ -81,7 +83,9 @@ public class AdapterBook extends RecyclerView.Adapter<AdapterBook.AdapterBookHol
 
         @Override
         public void onClick(View v) {
-
+            Intent intent = new Intent(v.getContext().getApplicationContext(), CategoryContent.class);
+            intent.putExtra("CATEGORY_NAME", adapterList.get(getAdapterPosition()).getCategory_name());
+            v.getContext().startActivity(intent);
         }
     }
 

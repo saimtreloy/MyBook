@@ -11,12 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity.MainActivity"></activity>
+        <activity android:name=".Activity.MainActivity" />
         <activity
             android:name=".Activity.VIdeoPlayer"
-            android:configChanges="orientation|keyboardHidden|screenLayout|screenSize">
-
-        </activity>
+            android:configChanges="orientation|keyboardHidden|screenLayout|screenSize" />
         <activity android:name=".Activity.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Activity.CategoryContent" />
+        <activity android:name=".Activity.AllCategory"></activity>
     </application>
 
 </manifest>

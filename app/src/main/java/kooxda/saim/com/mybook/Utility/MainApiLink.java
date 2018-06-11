@@ -10,5 +10,8 @@ public class MainApiLink {
 
     public static String login = link_head + "login" + ".php";
     public static String getCategory = link_head + "getCategory" + ".php";
+    public static String getMainVideo = link_head + "getMainVideo" + ".php";
+    public static String getMainAudio = link_head + "getMainAudio" + ".php";
+    public static String getContentByCategory = link_head + "getContentByCategory" + ".php";
 
 }
