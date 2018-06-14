@@ -8,10 +8,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -21,6 +25,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+
+import kooxda.saim.com.mybook.Adapter.AdapterCategoryContent;
+import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
 import kooxda.saim.com.mybook.Utility.Utility;
 
@@ -46,15 +58,35 @@ public class VIdeoPlayer extends AppCompatActivity {
     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
     public static String videoUrl = "";
+    public static String videoTitle = "";
+    public static String jsonAdapterList = "";
+    public static ArrayList<ModelContent> modelContentArrayList = new ArrayList<>();
+
+
+    ArrayList<ModelContent> modelContents = new ArrayList<>();
+    RecyclerView recyclerViewContentVideoLayout;
+    RecyclerView.LayoutManager layoutManagerContentVideoLayout;
+    RecyclerView.Adapter contentVideoLayoutAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.AppTheme);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        setTheme(R.style.AppThemeMainActivity);
         setContentView(R.layout.activity_video_player);
 
         videoUrl = getIntent().getExtras().getString("URL");
+        videoTitle = getIntent().getExtras().getString("TITLE");
+        jsonAdapterList = getIntent().getExtras().getString("LIST");
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<ArrayList<ModelContent>>(){}.getType();
+        modelContentArrayList = gson.fromJson(jsonAdapterList, type);
+
+        for (ModelContent content : modelContentArrayList){
+            Log.i("MODEL CONTENT DATA", content.getId()+" : "+content.getName());
+        }
 
         Init();
     }
@@ -82,6 +114,13 @@ public class VIdeoPlayer extends AppCompatActivity {
         txtControlVideoName = (TextView) findViewById(R.id.txtControlVideoName);
 
         seekBarControl = (SeekBar) findViewById(R.id.seekBarControl);
+
+
+        recyclerViewContentVideoLayout = (RecyclerView) findViewById(R.id.recyclerViewContentVideoLayout);
+        recyclerViewContentVideoLayout.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerViewContentVideoLayout.setHasFixedSize(true);
+        contentVideoLayoutAdapter = new AdapterCategoryContent(modelContentArrayList);
+        recyclerViewContentVideoLayout.setAdapter(contentVideoLayoutAdapter);
 
 
         settingVideoView();
@@ -274,7 +313,7 @@ public class VIdeoPlayer extends AppCompatActivity {
         layoutVideoPlayer.getLayoutParams().width = metrics.heightPixels;
 
         //layoutVideoPlayer.getLayoutParams().height = metrics.widthPixels;
-        //videoView.setLayoutParams(layoutParams);
+        videoView.setLayoutParams(layoutParams);
     }
 
 
@@ -294,8 +333,8 @@ public class VIdeoPlayer extends AppCompatActivity {
             try {
                 totalDuration = mediaPlayer.getDuration();
                 currentDuration = mediaPlayer.getCurrentPosition();
-                String fileName = "Big Buck Bunny Saim";
-                txtControlVideoName.setText(fileName);
+                //String fileName = "Big Buck Bunny Saim";
+                txtControlVideoName.setText(videoTitle);
                 txtControlEnd.setText(Utility.milliSecondsToTimer(totalDuration));
                 txtControlCurrent.setText(Utility.milliSecondsToTimer(currentDuration));
                 final int progress = (int) (Utility.getProgressPercentage(currentDuration, totalDuration));

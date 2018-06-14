@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,6 +89,9 @@ public class AdapterCategoryContent extends RecyclerView.Adapter<AdapterCategory
             if (adapterList.get(getAdapterPosition()).getType().equals("Video")) {
                 Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
+                intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
+                Log.d("SAIM SAIM VIDEO NAME", adapterList.get(getAdapterPosition()).getName());
+                Toast.makeText(v.getContext().getApplicationContext(), adapterList.get(getAdapterPosition()).getName(), Toast.LENGTH_SHORT).show();
                 v.getContext().startActivity(intent);
             } else if (adapterList.get(getAdapterPosition()).getType().equals("Audio")) {
                 Toast.makeText(v.getContext().getApplicationContext(), "Audio Content", Toast.LENGTH_SHORT).show();

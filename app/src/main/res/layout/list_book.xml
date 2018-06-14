@@ -4,9 +4,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="100dp"
-    android:layout_height="120dp"
+    android:layout_height="wrap_content"
     app:cardElevation="6dp"
-    app:cardCornerRadius="6dp"
+    app:cardCornerRadius="2dp"
     android:layout_margin="6dp"
     app:cardPreventCornerOverlap="false"
     app:cardBackgroundColor="#fff">
@@ -26,11 +26,12 @@
 
         <TextView
             android:id="@+id/txtBookName"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:text="My book class One"
+            android:text="My book class One My class two"
             android:textSize="10sp"
+            android:padding="4dp"
             android:textColor="@android:color/black"
             android:textAlignment="center"/>
 

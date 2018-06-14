@@ -15,6 +15,7 @@
         <activity
             android:name=".Activity.VIdeoPlayer"
             android:configChanges="orientation|keyboardHidden|screenLayout|screenSize" />
+
         <activity android:name=".Activity.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
