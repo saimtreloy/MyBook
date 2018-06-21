@@ -15,7 +15,6 @@
         <activity
             android:name=".Activity.VIdeoPlayer"
             android:configChanges="orientation|keyboardHidden|screenLayout|screenSize" />
-
         <activity android:name=".Activity.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.CategoryContent" />
-        <activity android:name=".Activity.AllCategory"></activity>
+        <activity android:name=".Activity.AllCategory" />
+        <activity android:name=".Activity.Profile"></activity>
     </application>
 
 </manifest>

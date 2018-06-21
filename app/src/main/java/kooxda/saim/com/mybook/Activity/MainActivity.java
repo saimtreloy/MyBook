@@ -1,19 +1,23 @@
 package kooxda.saim.com.mybook.Activity;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -160,11 +164,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.btbMenuHome) {
-
                     drawerLayout.closeDrawers();
                 } else if (item.getItemId() == R.id.btbMenuProfile) {
-
                     drawerLayout.closeDrawers();
+                    startActivity(new Intent(getApplicationContext(), Profile.class));
                 } else if (item.getItemId() == R.id.btbMenuCategory) {
 
                     drawerLayout.closeDrawers();
@@ -175,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
 
                     drawerLayout.closeDrawers();
                 }else if (item.getItemId() == R.id.btbMenuExit) {
-
                     drawerLayout.closeDrawers();
+                    AlertExit();
                 }
                 return false;
             }
@@ -203,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        progressDialog.dismiss();
                         try {
                             Log.d("API RESPONSE", response);
 
@@ -258,13 +260,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void LoadVideo() {
-        progressDialog.show();
         modelContentsVideo.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getMainVideo,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        progressDialog.dismiss();
                         try {
                             Log.d("API RESPONSE", response);
 
@@ -325,7 +325,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void LoadAudio() {
-        progressDialog.show();
         modelContentsAudio.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getMainAudio,
                 new Response.Listener<String>() {
@@ -388,4 +387,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case android.R.id.home:
+                AlertExit();
+                break;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertExit();
+    }
+
+    public void AlertExit() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you want to exit?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }
