@@ -6,15 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,7 +31,6 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -169,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
                     drawerLayout.closeDrawers();
                     startActivity(new Intent(getApplicationContext(), Profile.class));
                 } else if (item.getItemId() == R.id.btbMenuCategory) {
-
                     drawerLayout.closeDrawers();
+                    startActivity(new Intent(getApplicationContext(), AllCategory.class));
                 } else if (item.getItemId() == R.id.btbMenuVideo) {
 
                     drawerLayout.closeDrawers();
