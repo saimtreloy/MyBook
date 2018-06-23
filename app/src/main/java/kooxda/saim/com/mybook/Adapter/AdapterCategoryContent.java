@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -88,13 +89,29 @@ public class AdapterCategoryContent extends RecyclerView.Adapter<AdapterCategory
         public void onClick(View v) {
             if (adapterList.get(getAdapterPosition()).getType().equals("Video")) {
                 Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
+                intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
-                Log.d("SAIM SAIM VIDEO NAME", adapterList.get(getAdapterPosition()).getName());
-                Toast.makeText(v.getContext().getApplicationContext(), adapterList.get(getAdapterPosition()).getName(), Toast.LENGTH_SHORT).show();
+
+                Gson gson = new Gson();
+                String jsonAdapterList = gson.toJson(adapterList);
+
+                intent.putExtra("LIST", jsonAdapterList);
+
                 v.getContext().startActivity(intent);
             } else if (adapterList.get(getAdapterPosition()).getType().equals("Audio")) {
-                Toast.makeText(v.getContext().getApplicationContext(), "Audio Content", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
+                intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
+                intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
+                intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
+                intent.putExtra("COVER", adapterList.get(getAdapterPosition()).getBanner());
+
+                Gson gson = new Gson();
+                String jsonAdapterList = gson.toJson(adapterList);
+
+                intent.putExtra("LIST", jsonAdapterList);
+
+                v.getContext().startActivity(intent);
             } else {
                 Toast.makeText(v.getContext().getApplicationContext(), "Something Wrong", Toast.LENGTH_SHORT).show();
             }

@@ -85,6 +85,7 @@ public class AdapterContentVideo extends RecyclerView.Adapter<AdapterContentVide
         public void onClick(View v) {
             if (adapterList.get(getAdapterPosition()).getType().equals("Video")) {
                 Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
+                intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
 
@@ -95,7 +96,18 @@ public class AdapterContentVideo extends RecyclerView.Adapter<AdapterContentVide
 
                 v.getContext().startActivity(intent);
             } else if (adapterList.get(getAdapterPosition()).getType().equals("Audio")) {
-                Toast.makeText(v.getContext().getApplicationContext(), "Audio Content", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
+                intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
+                intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
+                intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
+                intent.putExtra("COVER", adapterList.get(getAdapterPosition()).getBanner());
+
+                Gson gson = new Gson();
+                String jsonAdapterList = gson.toJson(adapterList);
+
+                intent.putExtra("LIST", jsonAdapterList);
+
+                v.getContext().startActivity(intent);
             } else {
                 Toast.makeText(v.getContext().getApplicationContext(), "Something Wrong", Toast.LENGTH_SHORT).show();
             }

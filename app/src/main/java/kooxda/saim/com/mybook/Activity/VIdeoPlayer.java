@@ -1,6 +1,11 @@
 package kooxda.saim.com.mybook.Activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -23,20 +28,24 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import kooxda.saim.com.mybook.Adapter.AdapterCategoryContent;
+import kooxda.saim.com.mybook.Adapter.AdapterPlayer;
 import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
 import kooxda.saim.com.mybook.Utility.Utility;
 
-public class VIdeoPlayer extends AppCompatActivity {
+public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnCompletionListener,
+        MediaPlayer.OnPreparedListener, SeekBar.OnSeekBarChangeListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, View.OnClickListener{
 
     public static CoordinatorLayout mainLayout;
 
@@ -49,6 +58,19 @@ public class VIdeoPlayer extends AppCompatActivity {
     TextView txtControlCurrent, txtControlEnd, txtControlVideoName;
     SeekBar seekBarControl;
 
+    //Audio Layout
+    RelativeLayout layoutAudioPlayer;
+    ImageView layoutAudioPlaceholder;
+    ProgressBar progVidAudio;
+    TextView txtControlAudioName, txtControlCurrentAudio, txtControlEndAudio;
+    ImageView imgControlPlayAudio;
+    SeekBar seekBarControlAudio;
+
+    static Handler progressBarHandlerAudio = new Handler();
+    public static MediaPlayer mpAudio;
+    private static boolean isPause = false;
+    //Audio layiut end
+
 
     private static MediaPlayer mediaPlayer;
     static Handler progressBarHandler = new Handler();
@@ -57,8 +79,7 @@ public class VIdeoPlayer extends AppCompatActivity {
     public boolean isFullscreen = false;
     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 
-    public static String videoUrl = "";
-    public static String videoTitle = "";
+    public static String contentType = "";
     public static String jsonAdapterList = "";
     public static ArrayList<ModelContent> modelContentArrayList = new ArrayList<>();
 
@@ -76,8 +97,8 @@ public class VIdeoPlayer extends AppCompatActivity {
         setTheme(R.style.AppThemeMainActivity);
         setContentView(R.layout.activity_video_player);
 
-        videoUrl = getIntent().getExtras().getString("URL");
-        videoTitle = getIntent().getExtras().getString("TITLE");
+
+        contentType = getIntent().getExtras().getString("TYPE");
         jsonAdapterList = getIntent().getExtras().getString("LIST");
 
         Gson gson = new Gson();
@@ -115,25 +136,58 @@ public class VIdeoPlayer extends AppCompatActivity {
 
         seekBarControl = (SeekBar) findViewById(R.id.seekBarControl);
 
+        //Audio Layout
+        layoutAudioPlayer = (RelativeLayout) findViewById(R.id.layoutAudioPlayer);
+        layoutAudioPlaceholder = (ImageView) findViewById(R.id.layoutAudioPlaceholder);
+        progVidAudio = (ProgressBar) findViewById(R.id.progVidAudio);
+        txtControlAudioName = (TextView) findViewById(R.id.txtControlAudioName);
+        txtControlCurrentAudio = (TextView) findViewById(R.id.txtControlCurrentAudio);
+        txtControlEndAudio = (TextView) findViewById(R.id.txtControlEndAudio);
+        imgControlPlayAudio = (ImageView) findViewById(R.id.imgControlPlayAudio);
+        imgControlPlayAudio.setOnClickListener(this);
+        seekBarControlAudio = (SeekBar) findViewById(R.id.seekBarControlAudio);
+        seekBarControlAudio.setOnSeekBarChangeListener(this);
+
+        mpAudio = new MediaPlayer();
+        mpAudio.reset();
+        mpAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        //Audio Layout End
+
 
         recyclerViewContentVideoLayout = (RecyclerView) findViewById(R.id.recyclerViewContentVideoLayout);
         recyclerViewContentVideoLayout.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerViewContentVideoLayout.setHasFixedSize(true);
-        contentVideoLayoutAdapter = new AdapterCategoryContent(modelContentArrayList);
+        contentVideoLayoutAdapter = new AdapterPlayer(modelContentArrayList);
         recyclerViewContentVideoLayout.setAdapter(contentVideoLayoutAdapter);
 
+        if (contentType.equals("Audio")) {
+            layoutvidVideo.setVisibility(View.GONE);
+            layoutAudioPlayer.setVisibility(View.VISIBLE);
+            String audioUrl = getIntent().getExtras().getString("URL");
+            String audioTitle = getIntent().getExtras().getString("TITLE");
+            String audioCover = getIntent().getExtras().getString("COVER");
 
-        settingVideoView();
+            playSong(audioUrl, audioTitle, audioCover);
+        } else {
+            layoutAudioPlayer.setVisibility(View.GONE);
+            layoutvidVideo.setVisibility(View.VISIBLE);
+
+            String videoUrl = getIntent().getExtras().getString("URL");
+            String videoTitle = getIntent().getExtras().getString("TITLE");
+
+            settingVideoView(videoUrl, videoTitle);
+        }
+
         VideoController();
 
     }
 
 
-    public void settingVideoView(){
-        //https://www.demonuts.com/Demonuts/smallvideo.mp4
-        Uri uri= Uri.parse(videoUrl);
+    public void settingVideoView(String vURL, String vTITLE){
+        Uri uri= Uri.parse(vURL);
         videoView.setVideoURI(uri);
         videoView.requestFocus();
+        txtControlVideoName.setText(vTITLE);
 
         layoutvidVideo.setVisibility(View.VISIBLE);
         progVidVideo.setVisibility(View.VISIBLE);
@@ -212,7 +266,6 @@ public class VIdeoPlayer extends AppCompatActivity {
         });
     }
 
-
     public void VideoController(){
         imgControlPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -278,7 +331,6 @@ public class VIdeoPlayer extends AppCompatActivity {
         });
     }
 
-
     private void enterFullScreen(){
         DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
         layoutVideoPlayer.getLayoutParams().height = metrics.widthPixels;
@@ -316,7 +368,6 @@ public class VIdeoPlayer extends AppCompatActivity {
         videoView.setLayoutParams(layoutParams);
     }
 
-
     public void updateProgressBar() {
         try {
             progressBarHandler.postDelayed(mUpdateTimeTask, 100);
@@ -333,8 +384,6 @@ public class VIdeoPlayer extends AppCompatActivity {
             try {
                 totalDuration = mediaPlayer.getDuration();
                 currentDuration = mediaPlayer.getCurrentPosition();
-                //String fileName = "Big Buck Bunny Saim";
-                txtControlVideoName.setText(videoTitle);
                 txtControlEnd.setText(Utility.milliSecondsToTimer(totalDuration));
                 txtControlCurrent.setText(Utility.milliSecondsToTimer(currentDuration));
                 final int progress = (int) (Utility.getProgressPercentage(currentDuration, totalDuration));
@@ -354,6 +403,142 @@ public class VIdeoPlayer extends AppCompatActivity {
         }
     };
 
+    public void updateProgressBarAudio() {
+        try {
+            progressBarHandlerAudio.postDelayed(mUpdateTimeTaskAudio, 100);
+        } catch (Exception e) {
+
+        }
+    }
+
+    Runnable mUpdateTimeTaskAudio = new Runnable() {
+        public void run() {
+            long totalDuration = 0;
+            long currentDuration = 0;
+
+            try {
+                totalDuration = mpAudio.getDuration();
+                currentDuration = mpAudio.getCurrentPosition();
+                txtControlCurrentAudio.setText(Utility.milliSecondsToTimer(currentDuration));
+                txtControlEndAudio.setText(Utility.milliSecondsToTimer(totalDuration));
+                final int progress = (int) (Utility.getProgressPercentage(currentDuration, totalDuration));
+                seekBarControlAudio.setProgress(progress);
+                progressBarHandlerAudio.postDelayed(this, 100);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    };
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.imgControlPlayAudio:
+                if (mpAudio.isPlaying()) {
+                    mpAudio.pause();
+                    isPause = true;
+                    progressBarHandler.removeCallbacks(mUpdateTimeTask);
+                    imgControlPlayAudio.setImageResource(R.drawable.ic_play);
+                    return;
+                }
+
+                if (isPause) {
+                    mpAudio.start();
+                    isPause = false;
+                    updateProgressBar();
+                    imgControlPlayAudio.setImageResource(R.drawable.ic_pause);
+                    return;
+                }
+                break;
+        }
+
+
+    }
+
+    public void playSong(String aURL, String aTITLE, String aCOVER) {
+        seekBarControlAudio.setEnabled(false);
+        mpAudio.stop();
+        mpAudio.reset();
+        progressBarHandlerAudio.removeCallbacks(mUpdateTimeTask);
+        try {
+            txtControlAudioName.setText(aTITLE);
+            mpAudio.setDataSource(aURL);
+            Picasso.with(getApplicationContext()).
+                    load(aCOVER).
+                    placeholder(R.drawable.ic_logo).
+                    error(R.drawable.ic_logo).
+                    into(layoutAudioPlaceholder);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        mpAudio.prepareAsync();
+        mpAudio.setOnPreparedListener(this);
+        mpAudio.setOnCompletionListener(this);
+        mpAudio.setOnBufferingUpdateListener(this);
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        mpAudio.stop();
+        progressBarHandlerAudio.removeCallbacks(mUpdateTimeTaskAudio);
+        seekBarControlAudio.setProgress(0);
+        imgControlPlayAudio.setImageResource(R.drawable.ic_play);
+        txtControlCurrentAudio.setText("00.00");
+        txtControlEndAudio.setText("00.00");
+    }
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        Log.d("Progress", progress+"");
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        progressBarHandlerAudio.removeCallbacks(mUpdateTimeTaskAudio);
+        int totalDuration = mpAudio.getDuration();
+        int currentPosition = Utility.progressToTimer(seekBar.getProgress(), totalDuration);
+        mpAudio.seekTo(currentPosition);
+        updateProgressBarAudio();
+    }
+
+
+    @Override
+    public void onPrepared(MediaPlayer player) {
+        seekBarControlAudio.setEnabled(true);
+        player.start();
+        imgControlPlayAudio.setImageResource(R.drawable.ic_pause);
+
+        updateProgressBarAudio();
+    }
+
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+        seekBarControlAudio.setSecondaryProgress(percent);
+        if (seekBarControlAudio.getProgress() < percent){
+
+        }else {
+
+        }
+        if (percent == 0) {
+
+        } else {
+
+        }
+
+    }
+
+    @Override
+    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        return false;
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -361,10 +546,55 @@ public class VIdeoPlayer extends AppCompatActivity {
             isFullscreen = false;
             exitFullScreen();
         }else {
+            mpAudio.stop();
+            mpAudio.release();
+            videoView.stopPlayback();
+            progressBarHandlerAudio.removeCallbacks(mUpdateTimeTaskAudio);
+            progressBarHandler.removeCallbacks(mUpdateTimeTask);
             finish();
         }
     }
 
+    //RECEIVER
+    private final BroadcastReceiver PlayContentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String videoType_N = intent.getExtras().getString("TYPE");
+            String videoUrl_N = intent.getExtras().getString("URL");
+            String videoTitle_N = intent.getExtras().getString("TITLE");
+            String videoCover_N = intent.getExtras().getString("COVER");
+
+            videoView.stopPlayback();
+            progressBarHandler.removeCallbacks(mUpdateTimeTask);
+            progressBarHandlerAudio.removeCallbacks(mUpdateTimeTaskAudio);
+
+            if (videoType_N.equals("Audio")) {
+                layoutvidVideo.setVisibility(View.GONE);
+                layoutAudioPlayer.setVisibility(View.VISIBLE);
+                playSong(videoUrl_N, videoTitle_N, videoCover_N);
+            } else {
+                layoutAudioPlayer.setVisibility(View.GONE);
+                layoutvidVideo.setVisibility(View.VISIBLE);
+                settingVideoView(videoUrl_N, videoTitle_N);
+            }
+
+            Toast.makeText(getApplicationContext(), "Starting " + videoTitle_N, Toast.LENGTH_SHORT).show();
+
+        }
+    };
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(PlayContentReceiver, new IntentFilter("kooxda.saim.com.mybook.PlayContentReceiver"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(PlayContentReceiver);
+    }
 
 
 
