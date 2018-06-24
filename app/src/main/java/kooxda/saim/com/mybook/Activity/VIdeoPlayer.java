@@ -527,9 +527,9 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
 
         }
         if (percent == 0) {
-
+            progVidAudio.setVisibility(View.VISIBLE);
         } else {
-
+            progVidAudio.setVisibility(View.GONE);
         }
 
     }
@@ -571,6 +571,9 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             if (videoType_N.equals("Audio")) {
                 layoutvidVideo.setVisibility(View.GONE);
                 layoutAudioPlayer.setVisibility(View.VISIBLE);
+                progVidAudio.setVisibility(View.VISIBLE);
+                txtControlCurrent.setText("00:00");
+                txtControlEnd.setText("00:00");
                 playSong(videoUrl_N, videoTitle_N, videoCover_N);
             } else {
                 layoutAudioPlayer.setVisibility(View.GONE);

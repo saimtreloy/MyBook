@@ -78,12 +78,20 @@
                                 android:drawableRight="@drawable/ic_see_all"
                                 android:drawableTint="@android:color/holo_orange_light"/>
 
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/recyclerViewContentAudio"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:reverseLayout="true">
+
+                            </android.support.v7.widget.RecyclerView>
+
                         </LinearLayout>
 
                         <android.support.v7.widget.RecyclerView
                             android:id="@+id/recyclerViewAllBook"
                             android:layout_width="match_parent"
-                            android:layout_height="132dp"
+                            android:layout_height="wrap_content"
                             app:reverseLayout="true">
 
                         </android.support.v7.widget.RecyclerView>
@@ -111,7 +119,7 @@
                         <android.support.v7.widget.RecyclerView
                             android:id="@+id/recyclerViewContentVideo"
                             android:layout_width="match_parent"
-                            android:layout_height="132dp"
+                            android:layout_height="wrap_content"
                             app:reverseLayout="true">
 
                         </android.support.v7.widget.RecyclerView>
@@ -135,14 +143,6 @@
                                 android:drawableTint="@android:color/holo_orange_light"/>
 
                         </LinearLayout>
-
-                        <android.support.v7.widget.RecyclerView
-                            android:id="@+id/recyclerViewContentAudio"
-                            android:layout_width="match_parent"
-                            android:layout_height="132dp"
-                            app:reverseLayout="true">
-
-                        </android.support.v7.widget.RecyclerView>
 
 
                     </LinearLayout>
