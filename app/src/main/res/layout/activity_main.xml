@@ -78,14 +78,6 @@
                                 android:drawableRight="@drawable/ic_see_all"
                                 android:drawableTint="@android:color/holo_orange_light"/>
 
-                            <android.support.v7.widget.RecyclerView
-                                android:id="@+id/recyclerViewContentAudio"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                app:reverseLayout="true">
-
-                            </android.support.v7.widget.RecyclerView>
-
                         </LinearLayout>
 
                         <android.support.v7.widget.RecyclerView
@@ -143,6 +135,14 @@
                                 android:drawableTint="@android:color/holo_orange_light"/>
 
                         </LinearLayout>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recyclerViewContentAudio"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:reverseLayout="true">
+
+                        </android.support.v7.widget.RecyclerView>
 
 
                     </LinearLayout>

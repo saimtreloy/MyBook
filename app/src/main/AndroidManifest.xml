@@ -24,7 +24,9 @@
         </activity>
         <activity android:name=".Activity.CategoryContent" />
         <activity android:name=".Activity.AllCategory" />
-        <activity android:name=".Activity.Profile"></activity>
+        <activity android:name=".Activity.Profile" />
+        <activity android:name=".Activity.AllContentAudioVideo" />
+        <activity android:name=".Activity.SearchActivity"></activity>
     </application>
 
 </manifest>

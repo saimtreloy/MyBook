@@ -40,6 +40,7 @@ import java.util.Map;
 import kooxda.saim.com.mybook.Adapter.AdapterBook;
 import kooxda.saim.com.mybook.Adapter.AdapterContentVideo;
 import kooxda.saim.com.mybook.Model.ModelBook;
+import kooxda.saim.com.mybook.Model.ModelCategoryBanner;
 import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
 import kooxda.saim.com.mybook.Utility.MainApiLink;
@@ -47,6 +48,7 @@ import kooxda.saim.com.mybook.Utility.MySingleton;
 import kooxda.saim.com.mybook.Utility.SharedPrefDatabase;
 import ss.com.bannerslider.banners.Banner;
 import ss.com.bannerslider.banners.RemoteBanner;
+import ss.com.bannerslider.events.OnBannerClickListener;
 import ss.com.bannerslider.views.BannerSlider;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     android.support.v7.app.ActionBarDrawerToggle actionBarDrawerToggle;
 
+    ArrayList<ModelCategoryBanner> modelCategoryBanners = new ArrayList<>();
     BannerSlider bannerSlider;
     List<Banner> banners;
 
@@ -149,8 +152,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         NavigationItemClicked();
-        startSlider();
-        LoadCategory();
+        //startSlider();
+        //LoadCategory();
+        LoadCategoryBanner();
+        BannerClicked();
     }
 
 
@@ -168,11 +173,15 @@ public class MainActivity extends AppCompatActivity {
                     drawerLayout.closeDrawers();
                     startActivity(new Intent(getApplicationContext(), AllCategory.class));
                 } else if (item.getItemId() == R.id.btbMenuVideo) {
-
                     drawerLayout.closeDrawers();
+                    Intent intent = new Intent(getApplicationContext(), AllContentAudioVideo.class);
+                    intent.putExtra("CONTENT_TYPE", "Video");
+                    startActivity(intent);
                 } else if (item.getItemId() == R.id.btbMenuAudio) {
-
                     drawerLayout.closeDrawers();
+                    Intent intent = new Intent(getApplicationContext(), AllContentAudioVideo.class);
+                    intent.putExtra("CONTENT_TYPE", "Audio");
+                    startActivity(intent);
                 }else if (item.getItemId() == R.id.btbMenuExit) {
                     drawerLayout.closeDrawers();
                     AlertExit();
@@ -182,16 +191,76 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void BannerClicked() {
+        bannerSlider.setOnBannerClickListener(new OnBannerClickListener() {
+            @Override
+            public void onClick(int position) {
+                Toast.makeText(getApplicationContext(), modelCategoryBanners.get(position).getCategory_name(), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), CategoryContent.class).putExtra("CATEGORY_NAME", modelCategoryBanners.get(position).getCategory_name()));
+            }
+        });
+    }
 
-    private void startSlider() {
+    private void LoadCategoryBanner() {
         bannerSlider = (BannerSlider) findViewById(R.id.bannerSlider);
         banners = new ArrayList<>();
+        progressDialog.show();
+        modelBooks.clear();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getCategoryCover,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            Log.d("API RESPONSE", response);
 
-        banners.add(new RemoteBanner("http://www.f-covers.com/cover/smashed-graphic-facebook-cover-timeline-banner-for-fb.jpg"));
-        banners.add(new RemoteBanner("http://3.bp.blogspot.com/-KuL73oC4Pn4/UlPhVIubGaI/AAAAAAAALw0/RM_Uqy0rYSo/s1600/3-Happy+Diwali+Facebook+Timeline+Covers+Free+download.jpg"));
-        banners.add(new RemoteBanner("https://www.sleekcover.com/covers/my-drugs-list-facebook-cover.jpg"));
+                            JSONArray jsonArray = new JSONArray(response);
+                            JSONObject jsonObject = jsonArray.getJSONObject(0);
+                            String code = jsonObject.getString("code");
 
-        bannerSlider.setBanners(banners);
+                            if (code.equals("success")) {
+
+                                JSONArray jsonArrayUser = jsonObject.getJSONArray("user");
+                                for (int i=0; i<jsonArrayUser.length(); i++) {
+                                    JSONObject jsonObjectUser = jsonArrayUser.getJSONObject(i);
+
+                                    String id = jsonObjectUser.getString("id");
+                                    String category_id = jsonObjectUser.getString("category_id");
+                                    String cover = jsonObjectUser.getString("cover");
+                                    String category_name = jsonObjectUser.getString("category_name");
+
+                                    ModelCategoryBanner modelCategoryBanner = new ModelCategoryBanner(id, category_id, cover, category_name);
+                                    modelCategoryBanners.add(modelCategoryBanner);
+
+                                    banners.add(new RemoteBanner(cover));
+                                }
+
+                                bannerSlider.setBanners(banners);
+                                LoadCategory();
+
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Something Wrong!!!", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        }catch (Exception e){
+                            Log.d("HDHD ", e.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Request Error", error.toString());
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("user_fullname", new SharedPrefDatabase(getApplicationContext()).RetriveName());
+
+                return params;
+            }
+        };
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
 
 
@@ -262,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            Log.d("API RESPONSE", response);
+                            Log.d("API RESPONSE VIDEO", response);
 
                             JSONArray jsonArray = new JSONArray(response);
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
@@ -291,8 +360,6 @@ public class MainActivity extends AppCompatActivity {
 
 
                                 LoadAudio();
-
-
                             } else {
                                 Toast.makeText(getApplicationContext(), "Something Wrong!!!", Toast.LENGTH_SHORT).show();
                             }
@@ -328,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         progressDialog.dismiss();
                         try {
-                            Log.d("API RESPONSE", response);
+                            Log.d("API RESPONSE AUDIO", response);
 
                             JSONArray jsonArray = new JSONArray(response);
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
@@ -398,6 +465,10 @@ public class MainActivity extends AppCompatActivity {
 
             case android.R.id.home:
                 AlertExit();
+                break;
+
+            case R.id.btbMenuSearch:
+                startActivity(new Intent(getApplicationContext(), SearchActivity.class));
                 break;
 
             default:
