@@ -1,11 +1,15 @@
 package kooxda.saim.com.mybook.Activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -82,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView.Adapter videoAdapter;
 
     TextView txtAllBookList;
+    TextView txtAllVideo;
+    TextView txtAllAudio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,13 +155,30 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), AllCategory.class));
             }
         });
+        txtAllVideo = (TextView) findViewById(R.id.txtAllVideo);
+        txtAllVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), AllContentAudioVideo.class);
+                intent.putExtra("CONTENT_TYPE", "Video");
+                startActivity(intent);
+            }
+        });
+        txtAllAudio = (TextView) findViewById(R.id.txtAllAudio);
+        txtAllAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), AllContentAudioVideo.class);
+                intent.putExtra("CONTENT_TYPE", "Audio");
+                startActivity(intent);
+            }
+        });
 
 
         NavigationItemClicked();
-        //startSlider();
-        //LoadCategory();
         LoadCategoryBanner();
         BannerClicked();
+        haveStoragePermission();
     }
 
 
@@ -204,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
     private void LoadCategoryBanner() {
         bannerSlider = (BannerSlider) findViewById(R.id.bannerSlider);
         banners = new ArrayList<>();
-        progressDialog.show();
         modelBooks.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getCategoryCover,
                 new Response.Listener<String>() {
@@ -265,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void LoadCategory() {
-        progressDialog.show();
         modelBooks.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getCategory,
                 new Response.Listener<String>() {
@@ -482,6 +503,7 @@ public class MainActivity extends AppCompatActivity {
         AlertExit();
     }
 
+
     public void AlertExit() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you want to exit?")
@@ -498,5 +520,19 @@ public class MainActivity extends AppCompatActivity {
                 });
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    public boolean haveStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
     }
 }

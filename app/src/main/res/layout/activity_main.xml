@@ -97,6 +97,7 @@
                             android:background="#3f3f3f">
 
                             <TextView
+                                android:id="@+id/txtAllVideo"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="LATEST VIDEO CONTENT"
@@ -125,6 +126,7 @@
                             android:background="#3f3f3f">
 
                             <TextView
+                                android:id="@+id/txtAllAudio"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="LATEST AUDIO CONTENT"

@@ -12,6 +12,11 @@
         android:icon="@drawable/ic_nav_profile"/>
 
     <item
+        android:id="@+id/btbMenuSavedContent"
+        android:title="Saved Content"
+        android:icon="@drawable/ic_save_content"/>
+
+    <item
         android:id="@+id/btbMenuCategory"
         android:title="All Books"
         android:icon="@drawable/ic_nav_category"/>

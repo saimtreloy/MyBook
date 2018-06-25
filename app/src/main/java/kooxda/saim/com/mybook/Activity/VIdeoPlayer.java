@@ -1,15 +1,18 @@
 package kooxda.saim.com.mybook.Activity;
 
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -35,8 +38,18 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 import kooxda.saim.com.mybook.Adapter.AdapterCategoryContent;
 import kooxda.saim.com.mybook.Adapter.AdapterPlayer;
@@ -83,11 +96,19 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     public static String jsonAdapterList = "";
     public static ArrayList<ModelContent> modelContentArrayList = new ArrayList<>();
 
+    public static String audioUrl = "";
+    public static String audioTitle = "";
+    public static String audioCover = "";
+    public static String videoUrl = "";
+    public static String videoTitle = "";
+
 
     ArrayList<ModelContent> modelContents = new ArrayList<>();
     RecyclerView recyclerViewContentVideoLayout;
     RecyclerView.LayoutManager layoutManagerContentVideoLayout;
     RecyclerView.Adapter contentVideoLayoutAdapter;
+
+    ImageView imgDownloadAndSave;
 
 
     @Override
@@ -108,6 +129,9 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         for (ModelContent content : modelContentArrayList){
             Log.i("MODEL CONTENT DATA", content.getId()+" : "+content.getName());
         }
+
+        String appPath = getApplicationContext().getFilesDir().getAbsolutePath();
+        Log.i("SAIM SAIM DIRECTORY", appPath);
 
         Init();
     }
@@ -148,6 +172,8 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         seekBarControlAudio = (SeekBar) findViewById(R.id.seekBarControlAudio);
         seekBarControlAudio.setOnSeekBarChangeListener(this);
 
+        imgDownloadAndSave = (ImageView) findViewById(R.id.imgDownloadAndSave);
+
         mpAudio = new MediaPlayer();
         mpAudio.reset();
         mpAudio.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -163,22 +189,30 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         if (contentType.equals("Audio")) {
             layoutvidVideo.setVisibility(View.GONE);
             layoutAudioPlayer.setVisibility(View.VISIBLE);
-            String audioUrl = getIntent().getExtras().getString("URL");
-            String audioTitle = getIntent().getExtras().getString("TITLE");
-            String audioCover = getIntent().getExtras().getString("COVER");
+            audioUrl = getIntent().getExtras().getString("URL");
+            audioTitle = getIntent().getExtras().getString("TITLE");
+            audioCover = getIntent().getExtras().getString("COVER");
 
             playSong(audioUrl, audioTitle, audioCover);
         } else {
             layoutAudioPlayer.setVisibility(View.GONE);
             layoutvidVideo.setVisibility(View.VISIBLE);
 
-            String videoUrl = getIntent().getExtras().getString("URL");
-            String videoTitle = getIntent().getExtras().getString("TITLE");
+            videoUrl = getIntent().getExtras().getString("URL");
+            videoTitle = getIntent().getExtras().getString("TITLE");
 
             settingVideoView(videoUrl, videoTitle);
         }
 
         VideoController();
+
+
+        imgDownloadAndSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DownloadFile();
+            }
+        });
 
     }
 
@@ -591,14 +625,53 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     protected void onStart() {
         super.onStart();
         registerReceiver(PlayContentReceiver, new IntentFilter("kooxda.saim.com.mybook.PlayContentReceiver"));
+        registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(PlayContentReceiver);
+        unregisterReceiver(onDownloadComplete);
     }
 
+
+    public void DownloadFile(){
+        DownloadManager downloadManager;
+        long downloadReference;
+
+        String song_download_link = "";
+        String file_name = "";
+        if (contentType.equals("Audio")) {
+            song_download_link = audioUrl;
+            file_name = audioTitle;
+        } else {
+            song_download_link = videoUrl;
+            file_name = videoTitle;
+        }
+
+        downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        Uri Download_Uri = Uri.parse(song_download_link);
+        DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
+
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+
+        request.setAllowedOverRoaming(false);
+        request.setTitle(file_name);
+        //request.allowScanningByMediaScanner();
+        //request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        //request.setDestinationInExternalPublicDir(Environment., name+".mp3");
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalFilesDir(getApplicationContext(), "/.IAMOK", file_name+".bin");
+        downloadReference = downloadManager.enqueue(request);
+    }
+
+
+    BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+            Toast.makeText(getApplicationContext(), "DOwnlaod Complete :D", Toast.LENGTH_SHORT).show();
+        }
+    };
 
 
 }

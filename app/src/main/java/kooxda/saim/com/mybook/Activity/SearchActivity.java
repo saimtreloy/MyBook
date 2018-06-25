@@ -105,6 +105,8 @@ public class SearchActivity extends AppCompatActivity {
 
             }
         });
+
+        LoadAllCategory();
         RadioButtonChange();
 
     }
