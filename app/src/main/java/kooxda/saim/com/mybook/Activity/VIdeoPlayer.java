@@ -658,9 +658,6 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
 
         request.setAllowedOverRoaming(false);
         request.setTitle(file_name);
-        //request.allowScanningByMediaScanner();
-        //request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        //request.setDestinationInExternalPublicDir(Environment., name+".mp3");
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setDestinationInExternalFilesDir(getApplicationContext(), "/.IAMOK", file_name+".bin");
         downloadReference = downloadManager.enqueue(request);
