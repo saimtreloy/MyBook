@@ -1,8 +1,10 @@
 package kooxda.saim.com.mybook.Adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,35 +23,36 @@ import java.util.ArrayList;
 import kooxda.saim.com.mybook.Activity.VIdeoPlayer;
 import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
+import kooxda.saim.com.mybook.Utility.DBHelper;
 
 /**
- * Created by NREL on 6/11/18.
+ * Created by NREL on 6/27/18.
  */
 
-public class AdapterCategoryContent extends RecyclerView.Adapter<AdapterCategoryContent.AdapterCategoryContentHolder> {
+public class AdapterSaveVideo extends RecyclerView.Adapter<AdapterSaveVideo.AdapterCategoryContentHolder>{
 
     ArrayList<ModelContent> adapterList = new ArrayList<>();
     Context mContext;
 
-    public AdapterCategoryContent(ArrayList<ModelContent> adapterList) {
+    public AdapterSaveVideo(ArrayList<ModelContent> adapterList) {
         this.adapterList = adapterList;
     }
 
-    public AdapterCategoryContent(ArrayList<ModelContent> adapterList, Context mContext) {
+    public AdapterSaveVideo(ArrayList<ModelContent> adapterList, Context mContext) {
         this.adapterList = adapterList;
         this.mContext = mContext;
     }
 
     @NonNull
     @Override
-    public AdapterCategoryContentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AdapterSaveVideo.AdapterCategoryContentHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_category_content, parent, false);
-        AdapterCategoryContentHolder adapterCategoryContentHolder = new AdapterCategoryContentHolder(view);
+        AdapterSaveVideo.AdapterCategoryContentHolder adapterCategoryContentHolder = new AdapterSaveVideo.AdapterCategoryContentHolder(view);
         return adapterCategoryContentHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdapterCategoryContentHolder holder, int position) {
+    public void onBindViewHolder(@NonNull AdapterSaveVideo.AdapterCategoryContentHolder holder, int position) {
         holder.txtContentName.setText(adapterList.get(position).getName());
         holder.txtContentCategory.setText("Book Name : " + adapterList.get(position).getCategory());
         holder.txtContentType.setText("Content Type : " + adapterList.get(position).getType());
@@ -83,16 +86,26 @@ public class AdapterCategoryContent extends RecyclerView.Adapter<AdapterCategory
             txtContentType = (TextView) itemView.findViewById(R.id.txtContentType);
 
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    AlertDelete(view, getAdapterPosition());
+                    return false;
+                }
+            });
         }
 
         @Override
         public void onClick(View v) {
+            Log.d("SAIM POSSSSS", adapterList.get(getAdapterPosition()).getId() + "");
+
             if (adapterList.get(getAdapterPosition()).getType().equals("Video")) {
                 Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
                 intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());//POSITION
                 intent.putExtra("POSITION", getAdapterPosition());
+                intent.putExtra("SAVE", "save");
 
                 Gson gson = new Gson();
                 String jsonAdapterList = gson.toJson(adapterList);
@@ -107,10 +120,10 @@ public class AdapterCategoryContent extends RecyclerView.Adapter<AdapterCategory
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
                 intent.putExtra("COVER", adapterList.get(getAdapterPosition()).getBanner());
                 intent.putExtra("POSITION", getAdapterPosition());
+                intent.putExtra("SAVE", "save");
 
                 Gson gson = new Gson();
                 String jsonAdapterList = gson.toJson(adapterList);
-
                 intent.putExtra("LIST", jsonAdapterList);
 
                 v.getContext().startActivity(intent);
@@ -118,5 +131,28 @@ public class AdapterCategoryContent extends RecyclerView.Adapter<AdapterCategory
                 Toast.makeText(v.getContext().getApplicationContext(), "Something Wrong", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+
+    public void AlertDelete(final View v, final int pos) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+        builder.setMessage("Are you sure you want to delete?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        DBHelper dbHelper = new DBHelper(v.getContext());
+                        dbHelper.deleteContact(Integer.parseInt(adapterList.get(pos).getId()));
+                        adapterList.remove(pos);
+                        notifyItemRemoved(pos);
+                        notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

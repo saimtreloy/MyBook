@@ -88,6 +88,7 @@ public class AdapterContentVideo extends RecyclerView.Adapter<AdapterContentVide
                 intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
+                intent.putExtra("POSITION", getAdapterPosition());
 
                 Gson gson = new Gson();
                 String jsonAdapterList = gson.toJson(adapterList);
@@ -101,6 +102,7 @@ public class AdapterContentVideo extends RecyclerView.Adapter<AdapterContentVide
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
                 intent.putExtra("COVER", adapterList.get(getAdapterPosition()).getBanner());
+                intent.putExtra("POSITION", getAdapterPosition());
 
                 Gson gson = new Gson();
                 String jsonAdapterList = gson.toJson(adapterList);

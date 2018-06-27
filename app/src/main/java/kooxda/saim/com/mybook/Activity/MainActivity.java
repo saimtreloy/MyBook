@@ -47,6 +47,7 @@ import kooxda.saim.com.mybook.Model.ModelBook;
 import kooxda.saim.com.mybook.Model.ModelCategoryBanner;
 import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
+import kooxda.saim.com.mybook.Utility.DBHelper;
 import kooxda.saim.com.mybook.Utility.MainApiLink;
 import kooxda.saim.com.mybook.Utility.MySingleton;
 import kooxda.saim.com.mybook.Utility.SharedPrefDatabase;
@@ -95,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
         setTheme(R.style.AppThemeMainActivity);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
+
+        DBHelper dbHelper = new DBHelper(getApplicationContext());
+        Log.d("SAIM ALL SAVED ITEM", dbHelper.numberOfRows() + " DATA FOUND");
 
         init();
     }
@@ -192,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
                 } else if (item.getItemId() == R.id.btbMenuProfile) {
                     drawerLayout.closeDrawers();
                     startActivity(new Intent(getApplicationContext(), Profile.class));
+                } else if (item.getItemId() == R.id.btbMenuSavedContent) {
+                    drawerLayout.closeDrawers();
+                    startActivity(new Intent(getApplicationContext(), SaveContent.class));
                 } else if (item.getItemId() == R.id.btbMenuCategory) {
                     drawerLayout.closeDrawers();
                     startActivity(new Intent(getApplicationContext(), AllCategory.class));
@@ -524,10 +531,10 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean haveStoragePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         }
