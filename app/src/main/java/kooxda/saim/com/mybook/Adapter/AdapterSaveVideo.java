@@ -97,15 +97,12 @@ public class AdapterSaveVideo extends RecyclerView.Adapter<AdapterSaveVideo.Adap
 
         @Override
         public void onClick(View v) {
-            Log.d("SAIM POSSSSS", adapterList.get(getAdapterPosition()).getId() + "");
-
             if (adapterList.get(getAdapterPosition()).getType().equals("Video")) {
                 Intent intent = new Intent(v.getContext().getApplicationContext(), VIdeoPlayer.class);
                 intent.putExtra("TYPE", adapterList.get(getAdapterPosition()).getType());
                 intent.putExtra("URL", adapterList.get(getAdapterPosition()).getLocation());
-                intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());//POSITION
+                intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
                 intent.putExtra("POSITION", getAdapterPosition());
-                intent.putExtra("SAVE", "save");
 
                 Gson gson = new Gson();
                 String jsonAdapterList = gson.toJson(adapterList);
@@ -120,10 +117,10 @@ public class AdapterSaveVideo extends RecyclerView.Adapter<AdapterSaveVideo.Adap
                 intent.putExtra("TITLE", adapterList.get(getAdapterPosition()).getName());
                 intent.putExtra("COVER", adapterList.get(getAdapterPosition()).getBanner());
                 intent.putExtra("POSITION", getAdapterPosition());
-                intent.putExtra("SAVE", "save");
 
                 Gson gson = new Gson();
                 String jsonAdapterList = gson.toJson(adapterList);
+
                 intent.putExtra("LIST", jsonAdapterList);
 
                 v.getContext().startActivity(intent);

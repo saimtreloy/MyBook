@@ -64,6 +64,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public boolean getDataExits(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res =  db.rawQuery( "SELECT * FROM "+ CONTENT_TABLE_NAME + " WHERE " + CONTENT_COLUMN_ID + " = " + id + ";", null );
+        if (res.getCount() > 0){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public int numberOfRows(){
         SQLiteDatabase db = this.getReadableDatabase();
         int numRows = (int) DatabaseUtils.queryNumEntries(db, CONTENT_TABLE_NAME);

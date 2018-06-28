@@ -18,6 +18,12 @@ public class SharedPrefDatabase {
     public static final String KEY_ADDRESS = "KEY_ADDRESS";
 
 
+    public static final String KEY_SAVE_BANNER = "KEY_SAVE_BANNER";
+    public static final String KEY_SAVE_CATEGORY = "KEY_SAVE_CATEGORY";
+    public static final String KEY_SAVE_VIDEO = "KEY_SAVE_VIDEO";
+    public static final String KEY_SAVE_AUDIO = "KEY_SAVE_AUDIO";
+
+
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     Context context;
@@ -96,6 +102,43 @@ public class SharedPrefDatabase {
     }
     public String RetriveAddress(){
         String text = sharedPreferences.getString(KEY_ADDRESS, null);
+        return text;
+    }
+
+
+    public void StoreSaveBanner(String data){
+        editor.putString(KEY_SAVE_BANNER, data);
+        editor.commit();
+    }
+    public String RetriveSaveBanner(){
+        String text = sharedPreferences.getString(KEY_SAVE_BANNER, null);
+        return text;
+    }
+
+    public void StoreSaveCategory(String data){
+        editor.putString(KEY_SAVE_CATEGORY, data);
+        editor.commit();
+    }
+    public String RetriveSaveCategory(){
+        String text = sharedPreferences.getString(KEY_SAVE_CATEGORY, null);
+        return text;
+    }
+
+    public void StoreSaveVideo(String data){
+        editor.putString(KEY_SAVE_VIDEO, data);
+        editor.commit();
+    }
+    public String RetriveSaveVideo(){
+        String text = sharedPreferences.getString(KEY_SAVE_VIDEO, null);
+        return text;
+    }
+
+    public void StoreSaveAudio(String data){
+        editor.putString(KEY_SAVE_AUDIO, data);
+        editor.commit();
+    }
+    public String RetriveSaveAudio(){
+        String text = sharedPreferences.getString(KEY_SAVE_AUDIO, null);
         return text;
     }
 }

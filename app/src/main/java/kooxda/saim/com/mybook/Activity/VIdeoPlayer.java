@@ -425,6 +425,18 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                     @Override
                     public void onBufferingUpdate(MediaPlayer mp, int percent) {
                         seekBarControl.setSecondaryProgress(percent);
+                        Log.d("SAIM SECONDARY PROG", percent + "");
+                        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId() ))) {
+                            mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
+                                    modelContentArrayList.get(contentPosition).getName(),
+                                    modelContentArrayList.get(contentPosition).getBanner(),
+                                    modelContentArrayList.get(contentPosition).getLocation(),
+                                    modelContentArrayList.get(contentPosition).getType(),
+                                    modelContentArrayList.get(contentPosition).getCategory(),
+                                    modelContentArrayList.get(contentPosition).getDate_time());
+
+                            Toast.makeText(getApplicationContext(), "Content saved for offline", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 progressBarHandler.postDelayed(this, 50);
@@ -555,11 +567,19 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         seekBarControlAudio.setSecondaryProgress(percent);
-        if (seekBarControlAudio.getProgress() < percent){
+        Log.d("SAIM PROG PRO PRO", percent + "");
+        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId() ))) {
+            mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
+                    modelContentArrayList.get(contentPosition).getName(),
+                    modelContentArrayList.get(contentPosition).getBanner(),
+                    modelContentArrayList.get(contentPosition).getLocation(),
+                    modelContentArrayList.get(contentPosition).getType(),
+                    modelContentArrayList.get(contentPosition).getCategory(),
+                    modelContentArrayList.get(contentPosition).getDate_time());
 
-        }else {
-
+            Toast.makeText(getApplicationContext(), "Content saved for offline", Toast.LENGTH_SHORT).show();
         }
+
         if (percent == 0) {
             progVidAudio.setVisibility(View.VISIBLE);
         } else {

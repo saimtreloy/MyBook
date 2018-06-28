@@ -2,9 +2,11 @@ package kooxda.saim.com.mybook.Activity;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,11 +33,14 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,23 +70,23 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     android.support.v7.app.ActionBarDrawerToggle actionBarDrawerToggle;
 
-    ArrayList<ModelCategoryBanner> modelCategoryBanners = new ArrayList<>();
+    public static ArrayList<ModelCategoryBanner> modelCategoryBanners = new ArrayList<>();
     BannerSlider bannerSlider;
     List<Banner> banners;
 
-    ArrayList<ModelBook> modelBooks = new ArrayList<>();
+    public static ArrayList<ModelBook> modelBooks = new ArrayList<>();
     RecyclerView recyclerViewAllBook;
     RecyclerView.LayoutManager layoutManagerAllBook;
     RecyclerView.Adapter allBookAdapter;
 
     //recyclerViewContentVideo
-    ArrayList<ModelContent> modelContentsVideo = new ArrayList<>();
+    public static ArrayList<ModelContent> modelContentsVideo = new ArrayList<>();
     RecyclerView recyclerViewContentAudio;
     RecyclerView.LayoutManager layoutManagerAudio;
     RecyclerView.Adapter audioAdapter;
 
 
-    ArrayList<ModelContent> modelContentsAudio = new ArrayList<>();
+    public static ArrayList<ModelContent> modelContentsAudio = new ArrayList<>();
     RecyclerView recyclerViewContentVideo;
     RecyclerView.LayoutManager layoutManagerVideo;
     RecyclerView.Adapter videoAdapter;
@@ -98,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         DBHelper dbHelper = new DBHelper(getApplicationContext());
-        Log.d("SAIM ALL SAVED ITEM", dbHelper.numberOfRows() + " DATA FOUND");
 
         init();
     }
@@ -151,6 +155,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewContentAudio.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerViewContentAudio.setHasFixedSize(true);
 
+        bannerSlider = (BannerSlider) findViewById(R.id.bannerSlider);
+        banners = new ArrayList<>();
+
 
         txtAllBookList = (TextView) findViewById(R.id.txtAllBookList);
         txtAllBookList.setOnClickListener(new View.OnClickListener() {
@@ -178,10 +185,41 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         NavigationItemClicked();
-        LoadCategoryBanner();
-        BannerClicked();
+        if (isInternetConnected()) {
+            LoadCategoryBanner();
+            BannerClicked();
+        } else {
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<ModelCategoryBanner>>(){}.getType();
+            modelCategoryBanners = gson.fromJson(new SharedPrefDatabase(getApplicationContext()).RetriveSaveBanner(), type);
+
+            for (int i=0; i<modelCategoryBanners.size(); i++){
+                banners.add(new RemoteBanner(modelCategoryBanners.get(i).getCover()));
+            }
+            bannerSlider.setBanners(banners);
+            BannerClicked();
+
+            Gson gson1 = new Gson();
+            Type type1 = new TypeToken<ArrayList<ModelBook>>(){}.getType();
+            modelBooks = gson1.fromJson(new SharedPrefDatabase(getApplicationContext()).RetriveSaveCategory(), type1);
+            allBookAdapter = new AdapterBook(modelBooks);
+            recyclerViewAllBook.setAdapter(allBookAdapter);
+
+            Gson gson2 = new Gson();
+            Type type2 = new TypeToken<ArrayList<ModelContent>>(){}.getType();
+            modelContentsVideo = gson2.fromJson(new SharedPrefDatabase(getApplicationContext()).RetriveSaveVideo(), type2);
+            videoAdapter = new AdapterContentVideo(modelContentsVideo);
+            recyclerViewContentVideo.setAdapter(videoAdapter);
+
+            Gson gson3 = new Gson();
+            Type type3 = new TypeToken<ArrayList<ModelContent>>(){}.getType();
+            modelContentsAudio = gson3.fromJson(new SharedPrefDatabase(getApplicationContext()).RetriveSaveAudio(), type3);
+            audioAdapter = new AdapterContentVideo(modelContentsAudio);
+            recyclerViewContentAudio.setAdapter(audioAdapter);
+        }
+
+
         haveStoragePermission();
     }
 
@@ -232,8 +270,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void LoadCategoryBanner() {
-        bannerSlider = (BannerSlider) findViewById(R.id.bannerSlider);
-        banners = new ArrayList<>();
+
         modelBooks.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getCategoryCover,
                 new Response.Listener<String>() {
@@ -262,6 +299,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     banners.add(new RemoteBanner(cover));
                                 }
+
+                                Gson gson = new Gson();
+                                String save_banner = gson.toJson(modelCategoryBanners);
+                                new SharedPrefDatabase(getApplicationContext()).StoreSaveBanner(save_banner);
 
                                 bannerSlider.setBanners(banners);
                                 LoadCategory();
@@ -292,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
 
-
     private void LoadCategory() {
         modelBooks.clear();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, MainApiLink.getCategory,
@@ -319,6 +359,10 @@ public class MainActivity extends AppCompatActivity {
                                     ModelBook modelBook = new ModelBook(id, category_name, cover);
                                     modelBooks.add(modelBook);
                                 }
+
+                                Gson gson = new Gson();
+                                String save_category = gson.toJson(modelBooks);
+                                new SharedPrefDatabase(getApplicationContext()).StoreSaveCategory(save_category);
 
                                 allBookAdapter = new AdapterBook(modelBooks);
                                 recyclerViewAllBook.setAdapter(allBookAdapter);
@@ -383,6 +427,10 @@ public class MainActivity extends AppCompatActivity {
                                     modelContentsVideo.add(modelContentVideo);
                                 }
 
+                                Gson gson = new Gson();
+                                String save_video = gson.toJson(modelContentsVideo);
+                                new SharedPrefDatabase(getApplicationContext()).StoreSaveVideo(save_video);
+
                                 videoAdapter = new AdapterContentVideo(modelContentsVideo);
                                 recyclerViewContentVideo.setAdapter(videoAdapter);
 
@@ -446,6 +494,10 @@ public class MainActivity extends AppCompatActivity {
                                     ModelContent modelContentAudio = new ModelContent(id, name, banner, location, type, category, date_time);
                                     modelContentsAudio.add(modelContentAudio);
                                 }
+
+                                Gson gson = new Gson();
+                                String save_audio = gson.toJson(modelContentsAudio);
+                                new SharedPrefDatabase(getApplicationContext()).StoreSaveAudio(save_audio);
 
                                 audioAdapter = new AdapterContentVideo(modelContentsAudio);
                                 recyclerViewContentAudio.setAdapter(audioAdapter);
@@ -542,4 +594,14 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+
+    public boolean isInternetConnected(){
+        ConnectivityManager connectivityManager;
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
 }

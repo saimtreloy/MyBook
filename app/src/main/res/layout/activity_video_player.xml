@@ -163,6 +163,7 @@
                         android:id="@+id/imgDownloadAndSave"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
+                        android:visibility="gone"
                         android:src="@android:drawable/stat_sys_download_done"
                         android:padding="6dp"/>
                 </LinearLayout>
