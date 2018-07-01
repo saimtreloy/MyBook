@@ -1,5 +1,6 @@
 package kooxda.saim.com.mybook.Activity;
 
+import android.app.ActivityManager;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -78,7 +79,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     RelativeLayout layoutAudioPlayer;
     ImageView layoutAudioPlaceholder;
     ProgressBar progVidAudio;
-    TextView txtControlAudioName, txtControlCurrentAudio, txtControlEndAudio;
+    public static TextView txtControlAudioName, txtControlCurrentAudio, txtControlEndAudio;
     ImageView imgControlPlayAudio;
     SeekBar seekBarControlAudio;
 
@@ -209,7 +210,15 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         imgDownloadAndSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DownloadFile();
+                if (isMyServiceRunning(ServiceDownload.class)){
+                    Toast.makeText(getApplicationContext(), "Service Running", Toast.LENGTH_SHORT).show();
+                    stopService(new Intent(getApplicationContext(), ServiceDownload.class));
+                }
+                if (isMyServiceRunning(ServiceDownload.class)){
+                    Toast.makeText(getApplicationContext(), "Service Running Again ceck", Toast.LENGTH_SHORT).show();
+                    stopService(new Intent(getApplicationContext(), ServiceDownload.class));
+                }
+                startService(new Intent(getApplicationContext(), ServiceDownload.class).putExtra("SONG_URL", audioUrl));
             }
         });
 
@@ -425,7 +434,6 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                     @Override
                     public void onBufferingUpdate(MediaPlayer mp, int percent) {
                         seekBarControl.setSecondaryProgress(percent);
-                        Log.d("SAIM SECONDARY PROG", percent + "");
                         if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId() ))) {
                             mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
                                     modelContentArrayList.get(contentPosition).getName(),
@@ -536,7 +544,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     }
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        Log.d("Progress", progress+"");
+
     }
 
     @Override
@@ -567,7 +575,6 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         seekBarControlAudio.setSecondaryProgress(percent);
-        Log.d("SAIM PROG PRO PRO", percent + "");
         if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId() ))) {
             mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
                     modelContentArrayList.get(contentPosition).getName(),
@@ -695,6 +702,16 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         sendBroadcast(new Intent().setAction("android.intent.action.DOWNLOAD_COMPLETE").putExtra("SAIM", modelContentArrayList.get(contentPosition).getName()));
         Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
         startService(intent);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
