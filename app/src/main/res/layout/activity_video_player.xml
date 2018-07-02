@@ -47,6 +47,7 @@
                     android:gravity="center"
                     android:background="#bb222222">
                     <TextView
+                        android:layout_weight="1"
                         android:id="@+id/txtControlVideoName"
                         android:layout_width="match_parent"
                         android:layout_height="36dp"
@@ -56,6 +57,14 @@
                         android:textColor="#FFF"
                         android:textStyle="bold"
                         android:text="Big Buck Bunny"/>
+
+                    <ImageView
+                        android:id="@+id/imgDownloadAndSaveV"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:visibility="visible"
+                        android:src="@android:drawable/stat_sys_download_done"
+                        android:padding="6dp"/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/layoutVideoController"
@@ -71,6 +80,7 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_gravity="center"
+                        android:visibility="gone"
                         android:src="@drawable/ic_previous"/>
                     <ImageView
                         android:id="@+id/imgControlPlay"
@@ -82,6 +92,7 @@
                         android:layout_gravity="center"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:visibility="gone"
                         android:src="@drawable/ic_next"/>
                     <TextView
                         android:id="@+id/txtControlCurrent"
@@ -115,7 +126,6 @@
 
                 </LinearLayout>
             </RelativeLayout>
-
 
             <RelativeLayout
                 android:id="@+id/layoutAudioPlayer"

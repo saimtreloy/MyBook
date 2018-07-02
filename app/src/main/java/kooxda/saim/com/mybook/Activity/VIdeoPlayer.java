@@ -8,12 +8,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +22,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,43 +32,36 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.danikula.videocache.CacheListener;
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.File;
 import java.lang.reflect.Type;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
-
-import kooxda.saim.com.mybook.Adapter.AdapterCategoryContent;
 import kooxda.saim.com.mybook.Adapter.AdapterPlayer;
 import kooxda.saim.com.mybook.Model.ModelContent;
 import kooxda.saim.com.mybook.R;
+import kooxda.saim.com.mybook.Utility.App;
 import kooxda.saim.com.mybook.Utility.DBHelper;
 import kooxda.saim.com.mybook.Utility.ServiceDownload;
 import kooxda.saim.com.mybook.Utility.Utility;
 
 public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnPreparedListener, SeekBar.OnSeekBarChangeListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, View.OnClickListener{
+        MediaPlayer.OnPreparedListener, SeekBar.OnSeekBarChangeListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, View.OnClickListener, CacheListener {
 
     public static CoordinatorLayout mainLayout;
-    private DBHelper mydb ;
+    private DBHelper mydb;
 
     VideoView videoView;
     ProgressBar progVidVideo;
 
     RelativeLayout layoutVideoPlayer, layoutvidVideo;
     LinearLayout layoutVideoController, layoutVideoControllerTop;
-    ImageView imgControlPlay, imgControlPrevious,imgControlNext, imgControlFullScreen;
+    ImageView imgControlPlay, imgControlPrevious, imgControlNext, imgControlFullScreen;
     TextView txtControlCurrent, txtControlEnd, txtControlVideoName;
     SeekBar seekBarControl;
 
@@ -110,7 +100,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     RecyclerView.LayoutManager layoutManagerContentVideoLayout;
     RecyclerView.Adapter contentVideoLayoutAdapter;
 
-    ImageView imgDownloadAndSave;
+    ImageView imgDownloadAndSave, imgDownloadAndSaveV;
 
 
     @Override
@@ -127,7 +117,8 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         jsonAdapterList = getIntent().getExtras().getString("LIST");
 
         Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<ModelContent>>(){}.getType();
+        Type type = new TypeToken<ArrayList<ModelContent>>() {
+        }.getType();
         modelContentArrayList = gson.fromJson(jsonAdapterList, type);
 
         String appPath = getApplicationContext().getFilesDir().getAbsolutePath();
@@ -136,7 +127,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         Init();
     }
 
-    public void Init(){
+    public void Init() {
 
         mainLayout = (CoordinatorLayout) findViewById(R.id.mainLayout);
 
@@ -173,6 +164,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         seekBarControlAudio.setOnSeekBarChangeListener(this);
 
         imgDownloadAndSave = (ImageView) findViewById(R.id.imgDownloadAndSave);
+        imgDownloadAndSaveV = (ImageView) findViewById(R.id.imgDownloadAndSaveV);
 
         mpAudio = new MediaPlayer();
         mpAudio.reset();
@@ -194,6 +186,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             audioCover = getIntent().getExtras().getString("COVER");
 
             playSong(audioUrl, audioTitle, audioCover);
+            checkCachedState(audioUrl);
         } else {
             layoutAudioPlayer.setVisibility(View.GONE);
             layoutvidVideo.setVisibility(View.VISIBLE);
@@ -202,7 +195,10 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             videoTitle = getIntent().getExtras().getString("TITLE");
 
             settingVideoView(videoUrl, videoTitle);
+            checkCachedState(videoUrl);
         }
+
+
 
         VideoController();
 
@@ -210,23 +206,47 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         imgDownloadAndSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isMyServiceRunning(ServiceDownload.class)){
-                    Toast.makeText(getApplicationContext(), "Service Running", Toast.LENGTH_SHORT).show();
+                if (isMyServiceRunning(ServiceDownload.class)) {
                     stopService(new Intent(getApplicationContext(), ServiceDownload.class));
                 }
-                if (isMyServiceRunning(ServiceDownload.class)){
-                    Toast.makeText(getApplicationContext(), "Service Running Again ceck", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
+                intent.putExtra("S_ID", modelContentArrayList.get(contentPosition).getId());
+                intent.putExtra("S_NAME", modelContentArrayList.get(contentPosition).getName());
+                intent.putExtra("S_BANNER", modelContentArrayList.get(contentPosition).getBanner());
+                intent.putExtra("S_LOCATION", modelContentArrayList.get(contentPosition).getLocation());
+                intent.putExtra("S_TYPE", modelContentArrayList.get(contentPosition).getType());
+                intent.putExtra("S_CATEGORY", modelContentArrayList.get(contentPosition).getCategory());
+                intent.putExtra("S_DATE_TIME", modelContentArrayList.get(contentPosition).getDate_time());
+                startService(intent);
+            }
+        });
+
+        imgDownloadAndSaveV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isMyServiceRunning(ServiceDownload.class)) {
                     stopService(new Intent(getApplicationContext(), ServiceDownload.class));
                 }
-                startService(new Intent(getApplicationContext(), ServiceDownload.class).putExtra("SONG_URL", audioUrl));
+                Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
+                intent.putExtra("S_ID", modelContentArrayList.get(contentPosition).getId());
+                intent.putExtra("S_NAME", modelContentArrayList.get(contentPosition).getName());
+                intent.putExtra("S_BANNER", modelContentArrayList.get(contentPosition).getBanner());
+                intent.putExtra("S_LOCATION", modelContentArrayList.get(contentPosition).getLocation());
+                intent.putExtra("S_TYPE", modelContentArrayList.get(contentPosition).getType());
+                intent.putExtra("S_CATEGORY", modelContentArrayList.get(contentPosition).getCategory());
+                intent.putExtra("S_DATE_TIME", modelContentArrayList.get(contentPosition).getDate_time());
+                startService(intent);
             }
         });
 
     }
 
 
-    public void settingVideoView(String vURL, String vTITLE){
-        Uri uri= Uri.parse(vURL);
+    public void settingVideoView(String vURL, String vTITLE) {
+        HttpProxyCacheServer proxy = App.getProxy(getApplicationContext());
+        proxy.registerCacheListener(this, vURL);
+        String proxyUrl = proxy.getProxyUrl(vURL);
+        Uri uri = Uri.parse(proxyUrl);
         videoView.setVideoURI(uri);
         videoView.requestFocus();
         txtControlVideoName.setText(vTITLE);
@@ -277,11 +297,11 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             private GestureDetector gestureDetector = new GestureDetector(getApplicationContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    if (isFullscreen == false){
+                    if (isFullscreen == false) {
                         enterFullScreen();
                         isFullscreen = true;
                         imgControlFullScreen.setImageResource(R.drawable.ic_fullscreen_exit);
-                    }else if (isFullscreen == true){
+                    } else if (isFullscreen == true) {
                         exitFullScreen();
                         isFullscreen = false;
                         imgControlFullScreen.setImageResource(R.drawable.ic_fullscreen);
@@ -308,14 +328,14 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         });
     }
 
-    public void VideoController(){
+    public void VideoController() {
         imgControlPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (videoView.isPlaying()){
+                if (videoView.isPlaying()) {
                     videoView.pause();
                     imgControlPlay.setImageResource(R.drawable.ic_play);
-                }else {
+                } else {
                     videoView.start();
                     imgControlPlay.setImageResource(R.drawable.ic_pause);
                 }
@@ -339,11 +359,11 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         imgControlFullScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isFullscreen == false){
+                if (isFullscreen == false) {
                     enterFullScreen();
                     isFullscreen = true;
                     imgControlFullScreen.setImageResource(R.drawable.ic_fullscreen_exit);
-                }else if (isFullscreen == true){
+                } else if (isFullscreen == true) {
                     exitFullScreen();
                     isFullscreen = false;
                     imgControlFullScreen.setImageResource(R.drawable.ic_fullscreen);
@@ -373,12 +393,13 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         });
     }
 
-    private void enterFullScreen(){
-        DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
+    private void enterFullScreen() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
         layoutVideoPlayer.getLayoutParams().height = metrics.widthPixels;
         layoutVideoPlayer.getLayoutParams().width = metrics.heightPixels;
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         videoView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -396,13 +417,14 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         videoView.setLayoutParams(layoutParams);
     }
 
-    private void exitFullScreen(){
+    private void exitFullScreen() {
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         videoView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_VISIBLE);
-        DisplayMetrics metrics = new DisplayMetrics(); getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
         layoutVideoPlayer.getLayoutParams().height = (220 * (metrics.densityDpi / 160));
         layoutVideoPlayer.getLayoutParams().width = metrics.heightPixels;
 
@@ -434,7 +456,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                     @Override
                     public void onBufferingUpdate(MediaPlayer mp, int percent) {
                         seekBarControl.setSecondaryProgress(percent);
-                        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId() ))) {
+                        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
                             mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
                                     modelContentArrayList.get(contentPosition).getName(),
                                     modelContentArrayList.get(contentPosition).getBanner(),
@@ -518,7 +540,13 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         progressBarHandlerAudio.removeCallbacks(mUpdateTimeTask);
         try {
             txtControlAudioName.setText(aTITLE);
-            mpAudio.setDataSource(aURL);
+
+            HttpProxyCacheServer proxy = App.getProxy(getApplicationContext());
+            proxy.registerCacheListener(this, aURL);
+            String proxyUrl = proxy.getProxyUrl(aURL);
+
+            //mpAudio.setDataSource(aURL);
+            mpAudio.setDataSource(proxyUrl);
             Picasso.with(getApplicationContext()).
                     load(aCOVER).
                     placeholder(R.drawable.ic_logo).
@@ -542,6 +570,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         txtControlCurrentAudio.setText("00.00");
         txtControlEndAudio.setText("00.00");
     }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -575,7 +604,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         seekBarControlAudio.setSecondaryProgress(percent);
-        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId() ))) {
+        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
             mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
                     modelContentArrayList.get(contentPosition).getName(),
                     modelContentArrayList.get(contentPosition).getBanner(),
@@ -603,10 +632,10 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
 
     @Override
     public void onBackPressed() {
-        if (isFullscreen == true){
+        if (isFullscreen == true) {
             isFullscreen = false;
             exitFullScreen();
-        }else {
+        } else {
             mpAudio.stop();
             mpAudio.release();
             videoView.stopPlayback();
@@ -658,10 +687,11 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(PlayContentReceiver);
+        App.getProxy(this).unregisterCacheListener(this);
     }
 
 
-    public void DownloadFile(){
+    public void DownloadFile() {
         DownloadManager downloadManager;
         long downloadReference;
 
@@ -686,7 +716,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         //request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION);
         request.setVisibleInDownloadsUi(false);
-        request.setDestinationInExternalFilesDir(getApplicationContext(), "/.IAMOK", file_name+".bin");
+        request.setDestinationInExternalFilesDir(getApplicationContext(), "/.IAMOK", file_name + ".bin");
         downloadReference = downloadManager.enqueue(request);
 
         Toast.makeText(getApplicationContext(), "Download Starting ", Toast.LENGTH_SHORT).show();
@@ -715,4 +745,38 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     }
 
 
+    @Override
+    public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
+        seekBarControlAudio.setSecondaryProgress(percentsAvailable);
+        Log.d("SAIM CACHE ", percentsAvailable + " %");
+        if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
+            mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
+                    modelContentArrayList.get(contentPosition).getName(),
+                    modelContentArrayList.get(contentPosition).getBanner(),
+                    modelContentArrayList.get(contentPosition).getLocation(),
+                    modelContentArrayList.get(contentPosition).getType(),
+                    modelContentArrayList.get(contentPosition).getCategory(),
+                    modelContentArrayList.get(contentPosition).getDate_time());
+
+            Toast.makeText(getApplicationContext(), "Content saved for offline 1", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void checkCachedState(String url) {
+        HttpProxyCacheServer proxy = App.getProxy(this);
+        boolean fullyCached = proxy.isCached(url);
+        if (fullyCached) {
+            if (mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
+                mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
+                        modelContentArrayList.get(contentPosition).getName(),
+                        modelContentArrayList.get(contentPosition).getBanner(),
+                        modelContentArrayList.get(contentPosition).getLocation(),
+                        modelContentArrayList.get(contentPosition).getType(),
+                        modelContentArrayList.get(contentPosition).getCategory(),
+                        modelContentArrayList.get(contentPosition).getDate_time());
+
+                Toast.makeText(getApplicationContext(), "Content saved for offline 11", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

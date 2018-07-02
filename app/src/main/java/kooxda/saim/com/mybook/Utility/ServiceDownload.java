@@ -13,17 +13,29 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.danikula.videocache.CacheListener;
+import com.danikula.videocache.HttpProxyCacheServer;
+
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 import kooxda.saim.com.mybook.Activity.VIdeoPlayer;
 
 public class ServiceDownload extends Service implements MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, MediaPlayer.OnErrorListener{
+        MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, MediaPlayer.OnErrorListener, CacheListener{
 
     public static WeakReference<TextView> txtControlAudioName;
     public MediaPlayer mp;
-    public static String songName = "";
-    public static String songUrl = "";
+
+    DBHelper mydb;
+
+    public static String S_ID = "";
+    public static String S_NAME = "";
+    public static String S_BANNER = "";
+    public static String S_LOCATION = "";
+    public static String S_TYPE = "";
+    public static String S_CATEGORY = "";
+    public static String S_DATE_TIME = "";
 
 
     public ServiceDownload() {}
@@ -37,7 +49,20 @@ public class ServiceDownload extends Service implements MediaPlayer.OnCompletion
     @Override
     public int onStartCommand(Intent intenta, int flags, int startId) {
 
-        songUrl = intenta.getExtras().getString("SONG_URL");
+        mydb = new DBHelper(this);
+
+        mp = new MediaPlayer();
+        mp.reset();
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        S_ID = intenta.getExtras().getString("S_ID");
+        S_NAME = intenta.getExtras().getString("S_NAME");
+        S_BANNER = intenta.getExtras().getString("S_BANNER");
+        S_LOCATION = intenta.getExtras().getString("S_LOCATION");
+        S_TYPE = intenta.getExtras().getString("S_TYPE");
+        S_CATEGORY = intenta.getExtras().getString("S_CATEGORY");
+        S_DATE_TIME = intenta.getExtras().getString("S_DATE_TIME");
+
         init();
 
         return START_STICKY;
@@ -45,13 +70,19 @@ public class ServiceDownload extends Service implements MediaPlayer.OnCompletion
 
     private void init() {
         txtControlAudioName = new WeakReference<TextView>(VIdeoPlayer.txtControlAudioName);
-        songName = txtControlAudioName.get().getText().toString();
+
+        HttpProxyCacheServer proxy = App.getProxy(txtControlAudioName.get().getContext());
+        proxy.registerCacheListener((CacheListener) txtControlAudioName.get().getContext(), S_LOCATION);
+        String proxyUrl = proxy.getProxyUrl(S_LOCATION);
 
         try {
-            mp.setDataSource(songUrl);
+            mp.setDataSource(proxyUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        checkCachedState(S_LOCATION);
+
         mp.prepareAsync();
         mp.setOnPreparedListener(this);
         mp.setOnCompletionListener(this);
@@ -60,24 +91,16 @@ public class ServiceDownload extends Service implements MediaPlayer.OnCompletion
 
 
     @Override
-    public void onCreate() {
-        mp = new MediaPlayer();
-        mp.reset();
-        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        super.onCreate();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
     }
 
     @Override
     public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
-        Log.d("SONG PERCENT", "Song load " + percent);
-        txtControlAudioName.get().setText(songName + " (" + percent + ")");
+        txtControlAudioName.get().setText(S_NAME + " (" + percent + ")");
         if (percent == 100) {
             Toast.makeText(getApplicationContext(), "Downlaod Complete", Toast.LENGTH_SHORT);
+            Log.d("SAIM CACHE SER 1", percent + "%");
             stopSelf();
         }
     }
@@ -102,5 +125,27 @@ public class ServiceDownload extends Service implements MediaPlayer.OnCompletion
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
         Log.d("SAIM ERROR", "Hi im error");
         return false;
+    }
+
+    @Override
+    public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
+        Log.d("SAIM CACHE SER 2", percentsAvailable + "%");
+        if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(S_ID) )) {
+            mydb.insertContent(Integer.parseInt(S_ID), S_NAME, S_BANNER, S_LOCATION, S_TYPE, S_CATEGORY, S_DATE_TIME);
+            Toast.makeText(getApplicationContext(), "Content saved for offline 2", Toast.LENGTH_SHORT).show();
+            stopSelf();
+        }
+    }
+
+    private void checkCachedState(String url) {
+        HttpProxyCacheServer proxy = App.getProxy(this);
+        boolean fullyCached = proxy.isCached(url);
+        if (fullyCached) {
+            if (mydb.getDataExits(Integer.parseInt(S_ID) )) {
+                mydb.insertContent(Integer.parseInt(S_ID), S_NAME, S_BANNER, S_LOCATION, S_TYPE, S_CATEGORY, S_DATE_TIME);
+                Toast.makeText(getApplicationContext(), "Content saved for offline 3", Toast.LENGTH_SHORT).show();
+                stopSelf();
+            }
+        }
     }
 }
