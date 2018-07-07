@@ -123,7 +123,6 @@ public class ServiceDownload extends Service implements MediaPlayer.OnCompletion
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-        Log.d("SAIM ERROR", "Hi im error");
         return false;
     }
 
