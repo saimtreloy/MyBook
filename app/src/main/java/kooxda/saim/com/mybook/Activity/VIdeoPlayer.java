@@ -2,11 +2,15 @@ package kooxda.saim.com.mybook.Activity;
 
 import android.app.ActivityManager;
 import android.app.DownloadManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -14,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -101,6 +106,8 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     RecyclerView.Adapter contentVideoLayoutAdapter;
 
     ImageView imgDownloadAndSave, imgDownloadAndSaveV;
+
+    public boolean isDownload = false;
 
 
     @Override
@@ -206,36 +213,53 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         imgDownloadAndSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isMyServiceRunning(ServiceDownload.class)) {
-                    stopService(new Intent(getApplicationContext(), ServiceDownload.class));
+                HttpProxyCacheServer proxy = App.getProxy(getApplicationContext());
+                boolean fullyCached = proxy.isCached(modelContentArrayList.get(contentPosition).getLocation());
+                if (fullyCached) {
+                    CompletNotification();
+                    isDownload = false;
+                    mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
+                            modelContentArrayList.get(contentPosition).getName(),
+                            modelContentArrayList.get(contentPosition).getBanner(),
+                            modelContentArrayList.get(contentPosition).getLocation(),
+                            modelContentArrayList.get(contentPosition).getType(),
+                            modelContentArrayList.get(contentPosition).getCategory(),
+                            modelContentArrayList.get(contentPosition).getDate_time());
+                    Toast.makeText(getApplicationContext(), "Download Complete", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId())) == false) {
+                        Toast.makeText(getApplicationContext(), "Content already in ofline mode", Toast.LENGTH_SHORT).show();
+                    } else {
+                        isDownload = true;
+                    }
                 }
-                Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
-                intent.putExtra("S_ID", modelContentArrayList.get(contentPosition).getId());
-                intent.putExtra("S_NAME", modelContentArrayList.get(contentPosition).getName());
-                intent.putExtra("S_BANNER", modelContentArrayList.get(contentPosition).getBanner());
-                intent.putExtra("S_LOCATION", modelContentArrayList.get(contentPosition).getLocation());
-                intent.putExtra("S_TYPE", modelContentArrayList.get(contentPosition).getType());
-                intent.putExtra("S_CATEGORY", modelContentArrayList.get(contentPosition).getCategory());
-                intent.putExtra("S_DATE_TIME", modelContentArrayList.get(contentPosition).getDate_time());
-                startService(intent);
+
             }
         });
 
         imgDownloadAndSaveV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isMyServiceRunning(ServiceDownload.class)) {
-                    stopService(new Intent(getApplicationContext(), ServiceDownload.class));
+                HttpProxyCacheServer proxy = App.getProxy(getApplicationContext());
+                boolean fullyCached = proxy.isCached(modelContentArrayList.get(contentPosition).getLocation());
+                if (fullyCached) {
+                    CompletNotification();
+                    isDownload = false;
+                    mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
+                            modelContentArrayList.get(contentPosition).getName(),
+                            modelContentArrayList.get(contentPosition).getBanner(),
+                            modelContentArrayList.get(contentPosition).getLocation(),
+                            modelContentArrayList.get(contentPosition).getType(),
+                            modelContentArrayList.get(contentPosition).getCategory(),
+                            modelContentArrayList.get(contentPosition).getDate_time());
+                    Toast.makeText(getApplicationContext(), "Download Complete", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId())) == false) {
+                        Toast.makeText(getApplicationContext(), "Content already in ofline mode", Toast.LENGTH_SHORT).show();
+                    } else {
+                        isDownload = true;
+                    }
                 }
-                Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
-                intent.putExtra("S_ID", modelContentArrayList.get(contentPosition).getId());
-                intent.putExtra("S_NAME", modelContentArrayList.get(contentPosition).getName());
-                intent.putExtra("S_BANNER", modelContentArrayList.get(contentPosition).getBanner());
-                intent.putExtra("S_LOCATION", modelContentArrayList.get(contentPosition).getLocation());
-                intent.putExtra("S_TYPE", modelContentArrayList.get(contentPosition).getType());
-                intent.putExtra("S_CATEGORY", modelContentArrayList.get(contentPosition).getCategory());
-                intent.putExtra("S_DATE_TIME", modelContentArrayList.get(contentPosition).getDate_time());
-                startService(intent);
             }
         });
 
@@ -243,6 +267,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
 
 
     public void settingVideoView(String vURL, String vTITLE) {
+        isDownload = false;
         HttpProxyCacheServer proxy = App.getProxy(getApplicationContext());
         proxy.registerCacheListener(this, vURL);
         String proxyUrl = proxy.getProxyUrl(vURL);
@@ -534,6 +559,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
 
     public void playSong(String aURL, String aTITLE, String aCOVER) {
         Log.d("I AM URL", aURL);
+        isDownload = false;
         seekBarControlAudio.setEnabled(false);
         mpAudio.stop();
         mpAudio.reset();
@@ -749,7 +775,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
         seekBarControlAudio.setSecondaryProgress(percentsAvailable);
         Log.d("SAIM CACHE ", percentsAvailable + " %");
-        if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
+        /*if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
             mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
                     modelContentArrayList.get(contentPosition).getName(),
                     modelContentArrayList.get(contentPosition).getBanner(),
@@ -759,14 +785,12 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                     modelContentArrayList.get(contentPosition).getDate_time());
 
             Toast.makeText(getApplicationContext(), "Content saved for offline 1", Toast.LENGTH_SHORT).show();
-        }
-    }
+        }*/
 
-    private void checkCachedState(String url) {
-        HttpProxyCacheServer proxy = App.getProxy(this);
-        boolean fullyCached = proxy.isCached(url);
-        if (fullyCached) {
-            if (mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
+        if (isDownload == true) {
+            if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
+                CompletNotification();
+                isDownload = false;
                 mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
                         modelContentArrayList.get(contentPosition).getName(),
                         modelContentArrayList.get(contentPosition).getBanner(),
@@ -774,9 +798,50 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                         modelContentArrayList.get(contentPosition).getType(),
                         modelContentArrayList.get(contentPosition).getCategory(),
                         modelContentArrayList.get(contentPosition).getDate_time());
-
-                Toast.makeText(getApplicationContext(), "Content saved for offline 11", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Download Complete", Toast.LENGTH_SHORT).show();
+            } else if (percentsAvailable < 100){
+                AddNotification(percentsAvailable);
             }
         }
+
+    }
+
+    private void checkCachedState(String url) {
+        HttpProxyCacheServer proxy = App.getProxy(this);
+        boolean fullyCached = proxy.isCached(url);
+        if (fullyCached) {
+
+        }
+    }
+
+    public void AddNotification (int prog) {
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_logo)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_logo))
+                .setColor(getResources().getColor(R.color.colorAccent))
+                .setContentTitle("Offline Content")
+                .setContentText("Downloading content...")
+                .setProgress(100, prog, false)
+                .setPriority(NotificationManager.IMPORTANCE_HIGH);
+
+        builder.setAutoCancel(true);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(0, builder.build());
+    }
+
+    public void CompletNotification () {
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.ic_logo)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_logo))
+                .setColor(getResources().getColor(R.color.colorAccent))
+                .setContentTitle("Offline Content")
+                .setContentText("Download Complete")
+                .setPriority(NotificationManager.IMPORTANCE_HIGH);
+
+        builder.setAutoCancel(true);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(0, builder.build());
     }
 }
