@@ -630,18 +630,6 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         seekBarControlAudio.setSecondaryProgress(percent);
-        if (percent > 99 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
-            mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
-                    modelContentArrayList.get(contentPosition).getName(),
-                    modelContentArrayList.get(contentPosition).getBanner(),
-                    modelContentArrayList.get(contentPosition).getLocation(),
-                    modelContentArrayList.get(contentPosition).getType(),
-                    modelContentArrayList.get(contentPosition).getCategory(),
-                    modelContentArrayList.get(contentPosition).getDate_time());
-
-            Toast.makeText(getApplicationContext(), "Content saved for offline", Toast.LENGTH_SHORT).show();
-        }
-
         if (percent == 0) {
             progVidAudio.setVisibility(View.VISIBLE);
         } else {
@@ -775,17 +763,6 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
         seekBarControlAudio.setSecondaryProgress(percentsAvailable);
         Log.d("SAIM CACHE ", percentsAvailable + " %");
-        /*if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
-            mydb.insertContent(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()),
-                    modelContentArrayList.get(contentPosition).getName(),
-                    modelContentArrayList.get(contentPosition).getBanner(),
-                    modelContentArrayList.get(contentPosition).getLocation(),
-                    modelContentArrayList.get(contentPosition).getType(),
-                    modelContentArrayList.get(contentPosition).getCategory(),
-                    modelContentArrayList.get(contentPosition).getDate_time());
-
-            Toast.makeText(getApplicationContext(), "Content saved for offline 1", Toast.LENGTH_SHORT).show();
-        }*/
 
         if (isDownload == true) {
             if (percentsAvailable == 100 && mydb.getDataExits(Integer.parseInt(modelContentArrayList.get(contentPosition).getId()))) {
