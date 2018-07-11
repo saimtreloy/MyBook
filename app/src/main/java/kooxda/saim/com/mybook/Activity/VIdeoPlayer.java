@@ -113,7 +113,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setTheme(R.style.AppThemeMainActivity);
         setContentView(R.layout.activity_video_player);
 

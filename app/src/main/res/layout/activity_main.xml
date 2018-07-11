@@ -167,6 +167,24 @@
         app:menu="@menu/navigation_menu"
         app:headerLayout="@layout/drawer_header">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Powerd By Nano IT World Ltd."
+                android:textSize="10dp"
+                android:textStyle="italic"
+                android:textColor="@color/colorAccent"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="18dp"
+                android:paddingBottom="10dp"/>
+
+        </RelativeLayout>
+
+
     </android.support.design.widget.NavigationView>
 
 
