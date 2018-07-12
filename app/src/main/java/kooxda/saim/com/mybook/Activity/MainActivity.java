@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,21 +86,19 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManagerAudio;
     RecyclerView.Adapter audioAdapter;
 
-
     public static ArrayList<ModelContent> modelContentsAudio = new ArrayList<>();
     RecyclerView recyclerViewContentVideo;
     RecyclerView.LayoutManager layoutManagerVideo;
     RecyclerView.Adapter videoAdapter;
 
-    TextView txtAllBookList;
-    TextView txtAllVideo;
-    TextView txtAllAudio;
+    TextView txtAllBookList, txtAllVideo, txtAllAudio;
+    LinearLayout layoutAllBooks, layoutAllVideo, layoutAllAudio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.AppThemeMainActivity);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
 
         DBHelper dbHelper = new DBHelper(getApplicationContext());
@@ -184,6 +183,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        layoutAllBooks = (LinearLayout) findViewById(R.id.layoutAllBooks);
+        layoutAllVideo = (LinearLayout) findViewById(R.id.layoutAllVideo);
+        layoutAllAudio = (LinearLayout) findViewById(R.id.layoutAllAudio);
 
         NavigationItemClicked();
         if (isInternetConnected()) {
@@ -349,6 +352,11 @@ public class MainActivity extends AppCompatActivity {
                             if (code.equals("success")) {
 
                                 JSONArray jsonArrayUser = jsonObject.getJSONArray("user");
+                                if (jsonArrayUser.length() > 0) {
+                                    layoutAllBooks.setVisibility(View.VISIBLE);
+                                } else {
+                                    layoutAllBooks.setVisibility(View.GONE);
+                                }
                                 for (int i=0; i<jsonArrayUser.length(); i++) {
                                     JSONObject jsonObjectUser = jsonArrayUser.getJSONObject(i);
 
@@ -412,6 +420,11 @@ public class MainActivity extends AppCompatActivity {
                             if (code.equals("success")) {
 
                                 JSONArray jsonArrayUser = jsonObject.getJSONArray("user");
+                                if (jsonArrayUser.length() > 0) {
+                                    layoutAllVideo.setVisibility(View.VISIBLE);
+                                } else {
+                                    layoutAllVideo.setVisibility(View.GONE);
+                                }
                                 for (int i=0; i<jsonArrayUser.length(); i++) {
                                     JSONObject jsonObjectUser = jsonArrayUser.getJSONObject(i);
 
@@ -480,6 +493,11 @@ public class MainActivity extends AppCompatActivity {
                             if (code.equals("success")) {
 
                                 JSONArray jsonArrayUser = jsonObject.getJSONArray("user");
+                                if (jsonArrayUser.length() > 0) {
+                                    layoutAllAudio.setVisibility(View.VISIBLE);
+                                } else {
+                                    layoutAllAudio.setVisibility(View.GONE);
+                                }
                                 for (int i=0; i<jsonArrayUser.length(); i++) {
                                     JSONObject jsonObjectUser = jsonArrayUser.getJSONObject(i);
 

@@ -13,7 +13,7 @@
 
     <item
         android:id="@+id/btbMenuSavedContent"
-        android:title="Saved Content"
+        android:title="Saved Audio/Video"
         android:icon="@drawable/ic_save_content"/>
 
     <item

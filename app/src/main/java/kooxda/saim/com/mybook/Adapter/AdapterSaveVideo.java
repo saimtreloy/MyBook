@@ -71,7 +71,7 @@ public class AdapterSaveVideo extends RecyclerView.Adapter<AdapterSaveVideo.Adap
     public class AdapterCategoryContentHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CardView card_view;
-        ImageView imageBanner;
+        ImageView imageBanner, imgDelete;
         TextView txtContentName, txtContentCategory, txtContentType;
 
         public AdapterCategoryContentHolder(View itemView) {
@@ -81,6 +81,8 @@ public class AdapterSaveVideo extends RecyclerView.Adapter<AdapterSaveVideo.Adap
             card_view.setPreventCornerOverlap(false);
 
             imageBanner = (ImageView) itemView.findViewById(R.id.imageBanner);
+            imgDelete = (ImageView) itemView.findViewById(R.id.imgDelete);
+            imgDelete.setVisibility(View.VISIBLE);
             txtContentName = (TextView) itemView.findViewById(R.id.txtContentName);
             txtContentCategory = (TextView) itemView.findViewById(R.id.txtContentCategory);
             txtContentType = (TextView) itemView.findViewById(R.id.txtContentType);
@@ -91,6 +93,13 @@ public class AdapterSaveVideo extends RecyclerView.Adapter<AdapterSaveVideo.Adap
                 public boolean onLongClick(View view) {
                     AlertDelete(view, getAdapterPosition());
                     return false;
+                }
+            });
+
+            imgDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDelete(view, getAdapterPosition());
                 }
             });
         }

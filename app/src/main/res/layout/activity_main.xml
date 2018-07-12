@@ -61,6 +61,7 @@
                             app:animateIndicators="true"/>
 
                         <LinearLayout
+                            android:id="@+id/layoutAllBooks"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
@@ -90,6 +91,7 @@
 
 
                         <LinearLayout
+                            android:id="@+id/layoutAllVideo"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
@@ -119,6 +121,7 @@
 
 
                         <LinearLayout
+                            android:id="@+id/layoutAllAudio"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
@@ -174,8 +177,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Powerd By Nano IT World Ltd."
-                android:textSize="10dp"
+                android:text="Mamun's Care Education Ltd. Developed by Nano IT World"
+                android:textSize="10sp"
                 android:textStyle="italic"
                 android:textColor="@color/colorAccent"
                 android:layout_alignParentBottom="true"

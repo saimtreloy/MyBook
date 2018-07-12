@@ -24,9 +24,9 @@
             android:src="@drawable/ic_background" />
 
         <LinearLayout
+            android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
             android:orientation="vertical"
             android:padding="4dp">
 
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:text="I am text one and now i am"
                 android:textAllCaps="true"
-                android:textSize="16dp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -55,6 +55,23 @@
                 android:textSize="14sp" />
 
         </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="24dp"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imgDelete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:visibility="gone"
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/ic_delete"
+                android:tint="@color/colorAccent"
+                android:layout_alignParentBottom="true"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

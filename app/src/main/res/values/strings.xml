@@ -3,4 +3,9 @@
 
     <string name="drawer_open">Drawer Open</string>
     <string name="drawer_close">Drawer Close</string>
+
+    <string name="promo_1">Apps এবং Books - এর মাধ্যমে গ্যারেন্টিসহ ইংরেজি শিখুন।</string>
+    <string name="promo_2">Registration করে বই পেতে কল করুন: 01975 109 109</string>
+    <string name="promo_3">বিকাশ/রকেট (মার্চেন্ট): 01967-582-528-6</string>
+
 </resources>

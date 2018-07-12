@@ -14,12 +14,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="36dp"
+        android:paddingLeft="36dp"
+        android:paddingRight="36dp"
         android:layout_centerInParent="true">
 
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:scaleType="fitXY"
             android:src="@drawable/ic_logo"
             android:layout_marginBottom="26dp"/>
@@ -28,29 +29,66 @@
             android:id="@+id/inputEmail"
             android:layout_width="match_parent"
             android:layout_height="46dp"
+            android:layout_margin="4dp"
             android:background="@drawable/ic_round_button"
             android:layout_marginBottom="8dp"
             android:inputType="textWebEmailAddress"
-            android:hint="Email"
+            android:hint="Email Address"
             android:gravity="center"/>
 
         <EditText
             android:id="@+id/inputPassword"
             android:layout_width="match_parent"
             android:layout_height="46dp"
+            android:layout_margin="4dp"
             android:background="@drawable/ic_round_button"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="8dp"
             android:inputType="textPassword"
-            android:hint="Password"
+            android:hint="Registration Code"
             android:gravity="center"/>
-
 
         <Button
             android:id="@+id/btnLogin"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="54dp"
             android:text="Login" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/ic_round_button"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/promo_1"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/promo_2"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/promo_3"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -61,13 +99,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:paddingBottom="10dp"
+        android:paddingBottom="8dp"
         android:layout_alignParentBottom="true">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Powerd By Nano IT World Ltd."
+            android:text="Mamun's Care Education Ltd. Developed by Nano IT World"
+            android:textStyle="italic"
             android:textSize="10sp"
             android:textColor="@android:color/white"/>
 
