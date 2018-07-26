@@ -1,7 +1,10 @@
 package kooxda.saim.com.mybook.Activity;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -9,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -32,6 +36,7 @@ public class Login extends AppCompatActivity {
 
     ProgressDialog progressDialog;
     EditText inputEmail, inputPassword;
+    TextView txtBNumber, txtRNumber;
     Button btnLogin;
 
 
@@ -53,6 +58,9 @@ public class Login extends AppCompatActivity {
         inputEmail = (EditText) findViewById(R.id.inputEmail);
         inputPassword = (EditText) findViewById(R.id.inputPassword);
 
+        txtBNumber = (TextView) findViewById(R.id.txtBNumber);
+        txtRNumber = (TextView) findViewById(R.id.txtRNumber);
+
         btnLogin = (Button) findViewById(R.id.btnLogin);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -69,12 +77,30 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        Log.d("SAIM SAIM SAIM", new SharedPrefDatabase(getApplicationContext()).RetriveMobile() + "\n" + new SharedPrefDatabase(getApplicationContext()).RetrivePass());
-
         if (TextUtils.isEmpty(new SharedPrefDatabase(getApplicationContext()).RetriveMobile()) != true && TextUtils.isEmpty(new SharedPrefDatabase(getApplicationContext()).RetrivePass()) != true ) {
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
+
+        txtBNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("NUMBER COPY", txtBNumber.getText().toString());
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), "Bkash/Rocket Number Copied", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        txtRNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                String temp = "tel:" + txtRNumber.getText().toString();
+                intent.setData(Uri.parse(temp));
+                startActivity(intent);
+            }
+        });
     }
 
     private void RequestForLogin(final String email, final String pass ) {
