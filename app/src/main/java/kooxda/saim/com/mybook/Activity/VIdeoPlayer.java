@@ -44,6 +44,7 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -702,6 +703,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         super.onDestroy();
         unregisterReceiver(PlayContentReceiver);
         App.getProxy(this).unregisterCacheListener(this);
+        deleteFiles(getExternalCacheDir().getAbsolutePath());
     }
 
 
@@ -820,5 +822,17 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         builder.setAutoCancel(true);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, builder.build());
+    }
+
+
+    public static void deleteFiles(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            String deleteCmd = "rm -r " + path;
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                runtime.exec(deleteCmd);
+            } catch (IOException e) { }
+        }
     }
 }

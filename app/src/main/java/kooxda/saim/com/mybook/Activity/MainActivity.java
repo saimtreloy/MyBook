@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -41,6 +42,8 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(getApplicationContext());
 
         init();
+
+        Log.d("MY_FOLDER_CACHE", getExternalCacheDir().getAbsolutePath());
+        deleteFiles(getExternalCacheDir().getAbsolutePath());
     }
 
     private void init() {
@@ -620,6 +626,24 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        deleteFiles(getExternalCacheDir().getAbsolutePath());
+    }
+
+    public static void deleteFiles(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            String deleteCmd = "rm -r " + path;
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                runtime.exec(deleteCmd);
+            } catch (IOException e) { }
+        }
     }
 
 }
