@@ -703,7 +703,7 @@ public class VIdeoPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         super.onDestroy();
         unregisterReceiver(PlayContentReceiver);
         App.getProxy(this).unregisterCacheListener(this);
-        deleteFiles(getExternalCacheDir().getAbsolutePath());
+        //deleteFiles(getExternalCacheDir().getAbsolutePath());
     }
 
 

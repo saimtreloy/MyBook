@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.danikula.videocache.HttpProxyCacheServer;
 
+import java.io.File;
+
 /**
  * Created by NREL on 7/1/18.
  */
@@ -19,6 +21,7 @@ public class App extends Application {
     }
 
     private HttpProxyCacheServer newProxy() {
-        return new HttpProxyCacheServer(this);
+        //return new HttpProxyCacheServer(this);
+        return  new HttpProxyCacheServer.Builder(this).maxCacheSize(1024*1024*1024).maxCacheFilesCount(1000).cacheDirectory(new File(getCacheDir().getAbsolutePath())).build();
     }
 }

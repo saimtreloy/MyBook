@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         Log.d("MY_FOLDER_CACHE", getExternalCacheDir().getAbsolutePath());
-        deleteFiles(getExternalCacheDir().getAbsolutePath());
+        //deleteFiles(getExternalCacheDir().getAbsolutePath());
     }
 
     private void init() {
@@ -632,7 +632,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        deleteFiles(getExternalCacheDir().getAbsolutePath());
+        //deleteFiles(getExternalCacheDir().getAbsolutePath());
     }
 
     public static void deleteFiles(String path) {
